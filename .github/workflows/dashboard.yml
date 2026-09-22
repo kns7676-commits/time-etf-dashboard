@@ -1,0 +1,50 @@
+name: Update public ETF dashboard
+on:
+  schedule:
+    - cron: '0 21 * * *'
+  workflow_dispatch:
+    inputs:
+      refresh:
+        description: Fetch latest official holdings
+        type: boolean
+        default: true
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+concurrency:
+  group: public-dashboard
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node --test
+      - name: Refresh official public holdings
+        if: github.event_name == 'schedule' || inputs.refresh
+        run: node refresh.mjs
+      - run: node build-dashboard.mjs
+      - name: Save public holdings history
+        run: |
+          git config user.name 'ETF dashboard bot'
+          git config user.email 'etf-dashboard@users.noreply.github.com'
+          git add state/cumulative.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'Update public ETF holdings history'
+            git push
+          fi
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: output/site
+      - name: Deploy dashboard
+        id: deployment
+        uses: actions/deploy-pages@v4
