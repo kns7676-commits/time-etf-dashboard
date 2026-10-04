@@ -1,12 +1,13 @@
 import {weightSeries,mergeHistory} from './weight-report.mjs';
 export {mergeHistory};
-export const COLORS=['#2563eb','#d97706','#059669','#dc2626','#9333ea'];
+export const COLORS=['#2563eb','#d97706','#059669','#dc2626','#9333ea','#0891b2','#be185d','#65a30d','#475569','#ea580c'];
+export const GROUP_SIZE=10;
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function groupedSeries(history){
- return weightSeries(history).map(p=>({...p,groups:Array.from({length:Math.ceil(p.rows.length/5)},(_,i)=>{
-  const rows=p.rows.slice(i*5,i*5+5).map((r,j)=>({...r,color:COLORS[j]}));
+ return weightSeries(history).map(p=>({...p,groups:Array.from({length:Math.ceil(p.rows.length/GROUP_SIZE)},(_,i)=>{
+  const rows=p.rows.slice(i*GROUP_SIZE,(i+1)*GROUP_SIZE).map((r,j)=>({...r,color:COLORS[j]}));
   const events=rows.flatMap(r=>r.points.filter(v=>['added','removed'].includes(v.kind)).map(v=>({date:v.date,sourceDate:v.sourceDate,name:r.name,kind:v.kind,weight:v.weight,color:r.color}))).sort((a,b)=>a.date.localeCompare(b.date));
-  return {id:`${p.code}-${i+1}`,name:p.name,title:`${i*5+1}–${i*5+rows.length}위`,rows,events};
+  return {id:`${p.code}-${i+1}`,name:p.name,title:`${i*GROUP_SIZE+1}–${i*GROUP_SIZE+rows.length}위`,rows,events};
  })}));
 }
 const eventText=e=>`${e.date} 발송 (자료 ${e.sourceDate}) · ${e.kind==='added'?'편입':'편출'}: ${e.name} (${e.weight.toFixed(2)}%)`;
@@ -18,7 +19,7 @@ export function groupChart(group){
 }
 export function groupedWeightReport(history){
  const series=groupedSeries(history),latest=mergeHistory(history).at(-1);
- const text=[`TIME ETF 전체 종목 비중 변화 — ${latest.sentDate}`,'현재 비중 내림차순 · 한 그래프에 5종목 · 서로 다른 색으로 표시 · 단위 %',...series.flatMap(p=>[`\n【${p.name}】`,`${p.rows.length}종목 / ${p.groups.length}개 그래프 · 자료 ${latest.products[p.code].date}`,...(p.groups.flatMap(g=>g.events).length?p.groups.flatMap(g=>g.events).sort((a,b)=>a.date.localeCompare(b.date)).map(eventText):['기간 내 편입·편출 없음'])])].join('\n');
- const html=`<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>전체 종목 비중 변화 · 5종목씩</title><style>body{background:#f4f7fb;color:#20314a;font:15px/1.6 system-ui,'Malgun Gothic',sans-serif;margin:0}main{max-width:1150px;margin:auto;padding:24px}figure{background:white;border-radius:12px;padding:20px;margin:20px 0}.legend{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;font-weight:600}.scroll{overflow:auto}svg{width:100%;display:block}svg text{font-size:12px;fill:#42526a}table{border-collapse:collapse;white-space:nowrap}td,th{padding:8px;border:1px solid #ddd}h2{margin-top:48px}.events{font-size:13px}.events p{margin:4px 0}summary{cursor:pointer;padding:12px}nav a{display:inline-block;margin:6px}@media(max-width:600px){main{padding:12px}.legend{grid-template-columns:1fr}}</style><main><h1>전체 종목의 날짜별 비중 변화</h1><p>발송일 ${latest.sentDate} · 현재 비중 내림차순으로 5종목씩 묶었습니다.<br>각 선은 실제 보유 비중(%)입니다. 범례에 현재 비중을 표시합니다. 편출된 종목도 포함하며, 미보유 기간은 0%로 표시합니다. 같은 값의 선은 겹칠 수 있으므로 점의 설명과 날짜별 수치표로 확인할 수 있습니다.</p><nav>${series.map(p=>`<a href="#etf-${p.code}">${esc(p.name)} (${p.rows.length}종목)</a>`).join('')}</nav>${series.map(p=>`<section id="etf-${p.code}"><h2>${esc(p.name)}</h2><p>${p.baselineDate}부터 ${latest.sentDate}까지 · 현재 자료 ${latest.products[p.code].date} · ${p.groups.length}개 그래프</p>${p.groups.map(groupChart).join('')}</section>`).join('')}</main></html>`;
+ const text=[`TIME ETF 전체 종목 비중 변화 — ${latest.sentDate}`,'현재 비중 내림차순 · 한 그래프에 10종목 · 서로 다른 색으로 표시 · 단위 %',...series.flatMap(p=>[`\n【${p.name}】`,`${p.rows.length}종목 / ${p.groups.length}개 그래프 · 자료 ${latest.products[p.code].date}`,...(p.groups.flatMap(g=>g.events).length?p.groups.flatMap(g=>g.events).sort((a,b)=>a.date.localeCompare(b.date)).map(eventText):['기간 내 편입·편출 없음'])])].join('\n');
+ const html=`<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>전체 종목 비중 변화 · 10종목씩</title><style>body{background:#f4f7fb;color:#20314a;font:15px/1.6 system-ui,'Malgun Gothic',sans-serif;margin:0}main{max-width:1150px;margin:auto;padding:24px}figure{background:white;border-radius:12px;padding:20px;margin:20px 0}.legend{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;font-weight:600}.scroll{overflow:auto}svg{width:100%;display:block}svg text{font-size:12px;fill:#42526a}table{border-collapse:collapse;white-space:nowrap}td,th{padding:8px;border:1px solid #ddd}h2{margin-top:48px}.events{font-size:13px}.events p{margin:4px 0}summary{cursor:pointer;padding:12px}nav a{display:inline-block;margin:6px}@media(max-width:600px){main{padding:12px}.legend{grid-template-columns:1fr}}</style><main><h1>전체 종목의 날짜별 비중 변화</h1><p>발송일 ${latest.sentDate} · 현재 비중 내림차순으로 10종목씩 묶었습니다.<br>각 선은 실제 보유 비중(%)입니다. 범례에 현재 비중을 표시합니다. 편출된 종목도 포함하며, 미보유 기간은 0%로 표시합니다. 같은 값의 선은 겹칠 수 있으므로 점의 설명과 날짜별 수치표로 확인할 수 있습니다.</p><nav>${series.map(p=>`<a href="#etf-${p.code}">${esc(p.name)} (${p.rows.length}종목)</a>`).join('')}</nav>${series.map(p=>`<section id="etf-${p.code}"><h2>${esc(p.name)}</h2><p>${p.baselineDate}부터 ${latest.sentDate}까지 · 현재 자료 ${latest.products[p.code].date} · ${p.groups.length}개 그래프</p>${p.groups.map(groupChart).join('')}</section>`).join('')}</main></html>`;
  return {text,html,series};
 }
