@@ -32,6 +32,10 @@ jobs:
         if: github.event_name == 'schedule' || inputs.refresh
         run: node refresh.mjs
       - run: node build-dashboard.mjs
+      - name: Preserve selected all-holdings version
+        run: |
+          mkdir -p output/site/all-holdings
+          cp published/all-holdings/index.html output/site/all-holdings/index.html
       - name: Save public holdings history
         run: |
           git config user.name 'ETF dashboard bot'
