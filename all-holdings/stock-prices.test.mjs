@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {yahooSymbols,parsePrices,fetchStockPrice,fetchProductPrices} from './stock-prices.mjs';
+import {yahooSymbols,parsePrices,fetchStockPrice,fetchProductPrices,outcomes,pricePanel} from './stock-prices.mjs';
 import {groupedWeightReport} from './grouped-weight-report.mjs';
 const chart=(closes,start=Date.parse('2026-09-08T13:30:00Z')/1000)=>({chart:{result:[{meta:{currency:'USD',gmtoffset:-14400},timestamp:closes.map((_,i)=>start+i*86400),indicators:{quote:[{close:closes}]}}]}});
 test('holding codes map to Yahoo symbols; futures, cash and Korean ETFs have none',()=>{
@@ -35,4 +35,17 @@ test('price panel appears only for the configured ETF, after the weight chart',a
  const etf6=html.slice(html.indexOf('id="etf-6"'));
  assert.ok(etf6.indexOf('class="price-panel"')>etf6.indexOf('class="series"'));
  assert.match(html,/row-change/);
+});
+test('weight changes are matched to the close on or before the holdings date and judged by later price',()=>{
+ const pts=['09-08','09-09','09-11','09-12','09-15','09-16','09-17','09-18'].map((d,i)=>({d:'2026-'+d,c:[100,110,120,90,95,100,105,132][i]}));
+ const [inc,dec,last,early]=outcomes(pts,[{d:'2026-09-10',k:'increase'},{d:'2026-09-12',k:'decrease'},{d:'2026-09-18',k:'increase'},{d:'2026-09-01',k:'increase'}]);
+ assert.equal(inc.baseDate,'2026-09-09');assert.equal(inc.base,110);assert.equal(inc.r5,-4.55);assert.equal(inc.now,20);assert.equal(inc.match,true);
+ assert.equal(dec.base,90);assert.equal(dec.r5,null);assert.equal(dec.match,false);
+ assert.equal(last.match,null);assert.equal(early,undefined);
+});
+test('panel data carries per-row weight path by holdings date and that row\'s major changes',()=>{
+ const rows=[{code:'A',name:'A',points:[{sourceDate:'2026-09-08',weight:1},{sourceDate:'2026-09-08',weight:1},{sourceDate:'2026-09-09',weight:2}]}];
+ const html=pricePanel(rows,{A:{symbol:'A',currency:'USD',points:[]}},{0:[{date:'2026-09-09',kind:'increase',symbol:'▲',before:1,after:2,delta:1}]});
+ const data=JSON.parse(html.match(/class="price-data">(.*?)<\/script>/)[1])[0];
+ assert.deepEqual(data.w,[['2026-09-08',1],['2026-09-09',2]]);assert.deepEqual(data.ev,[{d:'2026-09-09',k:'increase',s:'▲',b:1,a:2,dl:1}]);
 });
