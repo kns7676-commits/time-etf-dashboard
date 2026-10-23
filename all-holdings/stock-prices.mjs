@@ -56,8 +56,8 @@ export function outcomes(pts,ev){
 export function pricePanel(rows,prices,events={},axis={width:900,dates:[]}){
  const data=JSON.stringify(rows.map((r,i)=>{
   const w=[];for(const p of r.points){if(w.length&&w.at(-1)[0]===p.sourceDate)w.at(-1)[1]=p.weight;else w.push([p.sourceDate,p.weight]);}
-  const ev=(events[i]||[]).map(e=>({d:e.date,k:e.kind,s:e.symbol,b:e.before,a:e.after,dl:e.delta})).sort((a,b)=>a.d.localeCompare(b.d));
-  return {name:r.name,w,ev,...(prices[r.code]||{skip:true})};
+  const ev=(events[i]||[]).map(e=>({d:e.date,k:e.kind,s:e.symbol,b:e.before,a:e.after,dl:e.delta,x:r.points[e.pointIndex]?.date})).sort((a,b)=>a.d.localeCompare(b.d));
+  return {name:r.name,w,sw:r.points.map(p=>[p.date,p.weight]),ev,...(prices[r.code]||{skip:true})};
  })).replace(/</g,'\\u003c');
  return `<div class="price-panel" data-axis="${JSON.stringify(axis).replace(/"/g,'&quot;')}"><h4 class="price-title"></h4><p class="price-legend"><span style="color:#334155">━ 주가 (왼쪽 축)</span> <span style="color:#d97706">━ 보유 비중 % (오른쪽 축)</span> <span style="color:#64748b">· 위 비중 그래프와 날짜가 같은 위치에 정렬되어 함께 스크롤됩니다</span> <span style="color:#dc2626">┊▲ 비중 확대</span> <span style="color:#2563eb">┊▼ 비중 축소</span> <span style="color:#059669">┊＋ 편입</span> <span style="color:#c2410c">┊× 편출</span></p><div class="scroll"><svg class="price-chart" viewBox="0 0 900 300" role="img" aria-label="선택 종목 일별 주가와 보유 비중"></svg></div><p class="price-reading" aria-live="polite"></p><div class="price-events"></div><p class="price-source">자료: Yahoo Finance 일별 종가 · 거래소 현지 날짜 · 휴장일 제외 · 지연 시세. 비중 조정 기준가는 보유내역 자료일(또는 직전 거래일) 종가입니다. 비중 변화에는 주가 변동 자체의 효과도 섞여 있어 실제 매수·매도와 같지 않으며, 이후 주가 방향은 사후 결과일 뿐 운용 성과나 투자 판단 근거가 아닙니다.</p><script type="application/json" class="price-data">${data}</script></div>`;
 }
@@ -80,16 +80,16 @@ function priceScript(outcomes){
    const s=rows[index];
    if(!s||!s.points){title.textContent=(s?s.name:'')+' 주가';svg.innerHTML='<text class="price-empty" x="'+(W/2)+'" y="150" text-anchor="middle">'+(s&&s.error?'주가 자료를 가져오지 못했습니다 ('+esc(s.symbol)+')':'선물·지수·현금·국내 상장 ETF 등은 주가 차트를 제공하지 않습니다')+'</text>';reading.textContent='';box.innerHTML='';svg.onpointermove=null;svg.onpointerleave=null;return;}
    const all=s.points,list=outcomes(all,s.ev),D=axis.dates.length>1?axis.dates:[all[0].d,all.at(-1).d],inRange=all.filter(p=>p.d>=D[0]&&p.d<=D.at(-1)),pts=inRange.length>1?inRange:all,cs=pts.map(p=>p.c),lo=Math.min(...cs),hi=Math.max(...cs),pad=(hi-lo||hi*.02||1)*.12,min=lo-pad,max=hi+pad;
-   const wAt=d=>{let v=null;for(const [wd,wv] of s.w)if(wd<=d)v=wv;return v;},ws=pts.map(p=>wAt(p.d)),wv=ws.filter(v=>v!==null),wlo=Math.min(...wv),whi=Math.max(...wv),wpad=(whi-wlo||whi*.1||1)*.15,wmin=Math.max(0,wlo-wpad),wmax=whi+wpad;
+   const wAt=d=>{let v=null;for(const [wd,wv] of s.sw)if(wd<=d)v=wv;return v;},ws=pts.map(p=>wAt(p.d)),wv=ws.filter(v=>v!==null),wlo=Math.min(...wv),whi=Math.max(...wv),wpad=(whi-wlo||whi*.1||1)*.15,wmin=Math.max(0,wlo-wpad),wmax=whi+wpad;
    const dx=d=>{const n=dayNo(d),a=D.map(dayNo),k=D.length-1,pos=i=>65+i*(W-100)/k;if(n<=a[0])return pos(0);if(n>=a[k])return pos(k);let i=0;while(a[i+1]<n)i++;return pos(i)+(n-a[i])/(a[i+1]-a[i])*(pos(i+1)-pos(i));},x=i=>dx(pts[i].d),y=v=>240-(v-min)/(max-min)*195,yw=v=>240-(v-wmin)/(wmax-wmin)*195;
    const total=(pts.at(-1).c/pts[0].c-1)*100,step=Math.ceil(pts.length/Math.max(4,Math.floor(W/60)));
    title.innerHTML=esc(s.name+' ('+s.symbol+') 주가와 보유 비중 · 일별 종가 '+s.currency)+' <span style="color:'+tone(total)+'">기간 '+pct(total)+'</span>';
    svg.innerHTML=Array.from({length:5},(_,i)=>{const v=min+(max-min)*i/4,w=wmin+(wmax-wmin)*i/4;return '<line x1="65" x2="'+(W-25)+'" y1="'+y(v)+'" y2="'+y(v)+'" stroke="#dce4ed"/><text x="60" y="'+(y(v)+4)+'" text-anchor="end">'+fmt(v,s.currency)+'</text>'+(wv.length?'<text x="'+(W-1)+'" y="'+(yw(w)+4)+'" text-anchor="end" style="fill:#d97706;font-size:10px">'+w.toFixed(2)+'</text>':'');}).join('')
-    +list.map((o,n)=>'<g class="ev" data-ev="'+n+'"><line x1="'+dx(o.d)+'" x2="'+dx(o.d)+'" y1="38" y2="242" stroke="'+kinds[o.k][1]+'" stroke-width="1.5" stroke-dasharray="5 4"/><text class="ev-symbol" x="'+dx(o.d)+'" y="32" text-anchor="middle" style="fill:'+kinds[o.k][1]+'">'+o.s+'</text><title>'+o.d+' 자료 · '+kinds[o.k][0]+' '+o.b.toFixed(2)+'% → '+o.a.toFixed(2)+'% · 이후 현재까지 '+pct(o.now)+'</title></g>').join('')
-    +(wv.length?'<polyline fill="none" stroke="#d97706" stroke-width="2" opacity=".85" points="'+ws.map((v,i)=>v===null?'':x(i)+','+yw(v)).filter(Boolean).join(' ')+'"/>':'')
+    +list.map((o,n)=>'<g class="ev" data-ev="'+n+'"><line x1="'+dx(o.x||o.d)+'" x2="'+dx(o.x||o.d)+'" y1="38" y2="242" stroke="'+kinds[o.k][1]+'" stroke-width="1.5" stroke-dasharray="5 4"/><text class="ev-symbol" x="'+dx(o.x||o.d)+'" y="32" text-anchor="middle" style="fill:'+kinds[o.k][1]+'">'+o.s+'</text><title>'+o.d+' 자료 · '+kinds[o.k][0]+' '+o.b.toFixed(2)+'% → '+o.a.toFixed(2)+'% · 이후 현재까지 '+pct(o.now)+'</title></g>').join('')
+    +(wv.length?'<polyline fill="none" stroke="#d97706" stroke-width="2.5" opacity=".9" points="'+s.sw.map(([d,v])=>dx(d)+','+yw(v)).join(' ')+'"/>'+s.sw.map(([d,v])=>'<circle cx="'+dx(d)+'" cy="'+yw(v)+'" r="3" fill="#d97706" stroke="white"><title>'+d+' 발송 · 비중 '+v.toFixed(2)+'%</title></circle>').join(''):'')
     +'<polyline fill="none" stroke="#334155" stroke-width="2.5" points="'+pts.map((p,i)=>x(i)+','+y(p.c)).join(' ')+'"/>'
     +pts.map((p,i)=>'<circle cx="'+x(i)+'" cy="'+y(p.c)+'" r="3" fill="#334155" stroke="white"><title>'+p.d+' · 종가 '+fmt(p.c,s.currency)+' · 전일 대비 '+pct(p.p)+(ws[i]!==null?' · 비중 '+ws[i].toFixed(2)+'%':'')+'</title></circle>').join('')
-    +pts.map((p,i)=>i%step&&i!==pts.length-1?'':'<text x="'+x(i)+'" y="266" text-anchor="middle">'+p.d.slice(5)+'</text>').join('')
+    +D.map(d=>'<text x="'+dx(d)+'" y="266" text-anchor="middle" style="font-size:12px">'+d.slice(5)+'</text>').join('')
     +'<line class="price-cursor" y1="38" y2="242" stroke="#94a3b8" stroke-dasharray="4 4" visibility="hidden"/>';
    const last=pts.at(-1),summary=pts[0].d+' ~ '+last.d+' · '+fmt(pts[0].c,s.currency)+' → '+fmt(last.c,s.currency)+' · 최근 일간 '+pct(last.p);
    reading.textContent=summary;
