@@ -39,7 +39,7 @@ export function groupedWeightReport(history,{prices={}}={}){
 const zoomInteraction = `document.querySelectorAll('figure').forEach(figure=>{
  const box=figure.querySelector(':scope > .scroll'),svg=box&&box.querySelector('svg');if(!svg)return;
  const W=svg.viewBox.baseVal.width;let z=1,start=null;
- const tools=document.createElement('div');tools.className='zoom-tools';tools.innerHTML='<button type="button" data-z="out" aria-label="그래프 축소">－</button><button type="button" data-z="in" aria-label="그래프 확대">＋</button><button type="button" data-z="fit">전체 보기</button><button type="button" data-z="reset">원래 크기</button><span class="auto-tools"><button type="button" data-auto="toggle"></button><button type="button" data-auto="slower">느리게</button><b class="speed"></b><button type="button" data-auto="faster">빠르게</button></span><span>두 손가락으로 확대·축소, 손으로 넘기면 자동 이동은 잠시 멈춥니다</span>';
+ const tools=document.createElement('div');tools.className='zoom-tools';tools.innerHTML='<button type="button" data-z="out" aria-label="그래프 축소">－</button><button type="button" data-z="in" aria-label="그래프 확대">＋</button><button type="button" data-z="fit">전체 보기</button><button type="button" data-z="reset">원래 크기</button><span class="auto-tools"><button type="button" data-auto="toggle"></button><button type="button" data-auto="slower">느리게</button><b class="speed"></b><button type="button" data-auto="faster">빠르게</button></span><span>두 손가락으로 확대·축소, 좌우로 넘기면 자동 이동은 잠시 멈춥니다</span>';
  box.before(tools);box.classList.add('zoomable');
  const fit=()=>Math.min(1,box.clientWidth/W);
  const set=(next,cx=box.clientWidth/2)=>{const old=z;z=Math.max(fit(),Math.min(4,next));const anchor=(box.scrollLeft+cx)/old;svg.style.minWidth=svg.style.width=(W*z)+'px';box.scrollLeft=anchor*z-cx;};
@@ -51,16 +51,20 @@ const zoomInteraction = `document.querySelectorAll('figure').forEach(figure=>{
  // 자동 이동: 날짜 방향으로 천천히 스크롤하고 끝에서 잠시 멈춘 뒤 처음부터 다시 갑니다.
  // 사람이 넘기거나 핀치하면 3초 쉬었다가 그 위치부터 이어 가며, 속도는 버튼으로 바꿉니다.
  const speeds=[.25,.5,1,2,4],play=tools.querySelector('[data-auto="toggle"]'),speedLabel=tools.querySelector('.speed');
- let si=2,playing=!matchMedia('(prefers-reduced-motion: reduce)').matches,seen=false,hover=false,hold=0,wait=0,pos=0,last=null;
+ let si=2,playing=!matchMedia('(prefers-reduced-motion: reduce)').matches,seen=false,touching=false,from=null,hold=0,wait=0,pos=0,last=null;
  const show=()=>{play.textContent=playing?'⏸ 멈춤':'▶ 자동 이동';speedLabel.textContent=speeds[si]+'배';};show();
  tools.addEventListener('click',e=>{const k=e.target.dataset&&e.target.dataset.auto;if(!k)return;if(k==='toggle')playing=!playing;else{si=Math.max(0,Math.min(speeds.length-1,si+(k==='faster'?1:-1)));playing=true;}show();});
- new IntersectionObserver(es=>{seen=es[0].isIntersecting;},{threshold:.3}).observe(box);
- ['touchstart','wheel','pointerdown'].forEach(t=>box.addEventListener(t,()=>{hold=performance.now()+3000;},{passive:true}));
- box.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')hover=true;});box.addEventListener('pointerleave',()=>{hover=false;});
+ new IntersectionObserver(es=>{seen=es[0].isIntersecting;}).observe(box);
+ // 위아래로 움직일 때는 계속 진행하고, 좌우로 넘기거나 핀치할 때만 멈춥니다.
+ box.addEventListener('touchstart',e=>{from={x:e.touches[0].clientX,y:e.touches[0].clientY};if(e.touches.length>1)touching=true;},{passive:true});
+ box.addEventListener('touchmove',e=>{if(!from)return;const dx=Math.abs(e.touches[0].clientX-from.x),dy=Math.abs(e.touches[0].clientY-from.y);if(e.touches.length>1||(dx>8&&dx>dy))touching=true;},{passive:true});
+ box.addEventListener('touchend',e=>{if(e.touches.length)return;if(touching)hold=performance.now()+3000;touching=false;from=null;});
+ box.addEventListener('wheel',e=>{if(Math.abs(e.deltaX)>Math.abs(e.deltaY)||e.shiftKey)hold=performance.now()+3000;},{passive:true});
  const tick=now=>{
   const dt=last===null?0:Math.min(100,now-last),max=box.scrollWidth-box.clientWidth;last=now;
-  if(Math.abs(box.scrollLeft-pos)>2)pos=box.scrollLeft;
-  if(playing&&seen&&!hover&&max>0&&now>hold){
+  // 자동 이동이 아닌 좌우 위치 변화(스크롤바 끌기, 관성 스크롤)는 사람이 넘긴 것으로 봅니다.
+  if(Math.abs(box.scrollLeft-pos)>2){pos=box.scrollLeft;hold=Math.max(hold,now+3000);}
+  if(playing&&seen&&!touching&&max>0&&now>hold){
    if(pos>=max-1){if(!wait)wait=now+2500;else if(now>wait){wait=0;pos=0;box.scrollLeft=0;}}
    else{pos=Math.min(max,pos+40*speeds[si]*dt/1000);box.scrollLeft=pos;}
   }
@@ -68,7 +72,7 @@ const zoomInteraction = `document.querySelectorAll('figure').forEach(figure=>{
  };
  requestAnimationFrame(tick);
  // 다른 종목을 고르면 첫 날짜부터 보이도록 맨 왼쪽으로 돌아갑니다.
- figure.addEventListener('row-change',()=>{box.scrollLeft=0;pos=0;wait=0;hold=performance.now()+1500;});
+ figure.addEventListener('row-change',()=>{box.scrollLeft=0;pos=box.scrollLeft;wait=0;hold=performance.now()+1500;});
 });`;
 const interactiveStyle = '.zoom-tools{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:4px 0 8px}.zoom-tools button{font:inherit;min-width:40px;padding:6px 10px;border:1px solid #dbe4ee;border-radius:8px;background:white;cursor:pointer}.zoom-tools>span:last-child{font-size:12px;color:#7a8799}.auto-tools{display:inline-flex;align-items:center;gap:6px;margin-left:8px}.auto-tools .speed{min-width:44px;text-align:center;font-size:13px}.zoomable{touch-action:pan-x pan-y}.rank-browser{display:flex;align-items:center;gap:12px;margin:16px 0}.rank-browser .legend{display:block;flex:1;max-height:none}.legend button[hidden]{display:none}.rank-prev,.rank-next{font:inherit;padding:10px;border:1px solid #dbe4ee;border-radius:8px;background:white;cursor:pointer}.rank-prev:disabled,.rank-next:disabled{opacity:.4;cursor:default}.legend button{width:100%;display:flex;flex-wrap:wrap;justify-content:space-between;gap:2px 16px}.line-key{font-size:13px}.legend button{font:inherit;text-align:left;background:#f8fafc;border:1px solid transparent;border-radius:6px;padding:8px;cursor:pointer}.legend button[aria-pressed="true"]{border-color:currentColor;background:white}.series{opacity:.35;transition:opacity .15s}.series polyline{stroke-width:2}.series.active{opacity:1}.series.active polyline{stroke-width:4}.series.dim{opacity:.09}.reset{margin-top:12px;padding:6px 14px;cursor:pointer}.selection-status{font-size:13px;color:#52647a}.group-fold,.heatmap{background:white;border-radius:12px;margin:16px 0}.heatmap th:first-child{position:sticky;left:0;background:white;z-index:1;text-align:left}.heatmap td{text-align:center;font-size:12px;min-width:55px}.heatmap table{width:100%}.heatmap summary{font-weight:600}';
 function heatmap(product){
