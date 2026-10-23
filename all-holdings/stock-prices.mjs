@@ -72,7 +72,7 @@ function priceScript(outcomes){
  document.querySelectorAll('figure').forEach(figure=>{
   const panel=figure.querySelector('.price-panel');if(!panel)return;
   // 주가는 위 비중 그래프(같은 SVG)에 겹쳐 그리고, 눈금은 오른쪽 축에 둡니다.
-  const axis=JSON.parse(panel.dataset.axis),W=axis.width,X0=axis.x0,SPAN=axis.span,rows=JSON.parse(panel.querySelector('.price-data').textContent),svg=figure.querySelector(':scope > .scroll svg'),title=panel.querySelector('.price-title'),reading=panel.querySelector('.price-reading'),box=panel.querySelector('.price-events');
+  const axis=JSON.parse(panel.dataset.axis),W=axis.width,X0=axis.x0,SPAN=axis.span,rows=JSON.parse(panel.querySelector('.price-data').textContent),svg=figure.querySelector(':scope > .chart-wrap > .scroll svg'),title=panel.querySelector('.price-title'),reading=panel.querySelector('.price-reading'),box=panel.querySelector('.price-events');
   const layer=document.createElementNS('http://www.w3.org/2000/svg','g');layer.setAttribute('class','price-layer');svg.appendChild(layer);
   const dayNo=d=>Date.parse(d+'T00:00:00Z')/864e5;
   const render=index=>{
@@ -83,8 +83,7 @@ function priceScript(outcomes){
    const dx=d=>{const n=dayNo(d),a=D.map(dayNo),k=D.length-1,pos=i=>X0+i*SPAN/k;if(n<=a[0])return pos(0);if(n>=a[k])return pos(k);let i=0;while(a[i+1]<n)i++;return pos(i)+(n-a[i])/(a[i+1]-a[i])*(pos(i+1)-pos(i));},x=i=>dx(pts[i].d),y=v=>550-(v-min)/(max-min)*500;
    const total=(pts.at(-1).c/pts[0].c-1)*100;
    title.innerHTML=esc(s.name+' ('+s.symbol+') 주가와 보유 비중 · 일별 종가 '+s.currency)+' <span style="color:'+tone(total)+'">기간 '+pct(total)+'</span>';
-   layer.innerHTML='<text class="price-axis-title" x="'+(W-5)+'" y="22" text-anchor="end">주가 ('+esc(s.currency)+')</text>'
-    +Array.from({length:5},(_,i)=>{const v=min+(max-min)*i/4;return '<text x="'+(X0+SPAN+14)+'" y="'+(y(v)+4)+'">'+fmt(v,s.currency)+'</text>';}).join('')
+   layer.innerHTML=Array.from({length:5},(_,i)=>{const v=min+(max-min)*i/4;return '<text x="'+(X0+SPAN+14)+'" y="'+(y(v)+4)+'">'+fmt(v,s.currency)+'</text>';}).join('')
     +list.map((o,n)=>'<g class="ev" data-ev="'+n+'"><line x1="'+dx(o.x||o.d)+'" x2="'+dx(o.x||o.d)+'" y1="50" y2="550" stroke="'+kinds[o.k][1]+'" stroke-width="1.5" stroke-dasharray="5 4" opacity=".6"/><title>'+o.d+' 자료 · '+kinds[o.k][0]+' '+o.b.toFixed(2)+'% → '+o.a.toFixed(2)+'% · 이후 현재까지 '+pct(o.now)+'</title></g>').join('')
     +'<polyline fill="none" stroke="#0f172a" stroke-width="3.5" stroke-dasharray="10 6" points="'+pts.map((p,i)=>x(i)+','+y(p.c)).join(' ')+'"/>'
     +pts.map((p,i)=>'<circle cx="'+x(i)+'" cy="'+y(p.c)+'" r="3" fill="#0f172a" stroke="white"><title>'+p.d+' · 종가 '+fmt(p.c,s.currency)+' · 전일 대비 '+pct(p.p)+(ws[i]!==null?' · 비중 '+ws[i].toFixed(2)+'%':'')+'</title></circle>').join('')
