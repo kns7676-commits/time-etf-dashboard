@@ -30,3 +30,5 @@
 2026-11-14 주가선 확대: 커밋 a5acc44, 실행 https://github.com/kns7676-commits/time-etf-dashboard/actions/runs/43558752457 성공(테스트 106개, 게시, Telegram 링크 전송 단계 성공). AI 탭 5개와 미국대표·KOSPI·KOSDAQ ETF별 그래프에 선택 종목 주가(검은 점선)와 비중 조정 세로선 표시. 같은 종목 주가는 한 번만 수집. 보유 자료일이 2일 미만인 바이오 ETF는 이력이 쌓이면 자동 추가. 공개 페이지 주가 패널 수 AI 5·미국대표 2·KOSPI 2·KOSDAQ 1 확인.
 
 2026-11-14 비교 그래프 통합: 커밋 2a11643, 실행 https://github.com/kns7676-commits/time-etf-dashboard/actions/runs/43559755854 성공(테스트 105개, 네 비교 수집, 게시, Telegram 링크 전송 단계 성공). 비교 탭의 흐린 선 ETF별 그래프 제거, 선택 종목 그래프 하나에 ETF별 비중·주가(오른쪽 축)·비중 조정 세로선·▲▼·자동 흐름 표시. AI 탭 그래프는 유지하고 주가 설명만 접힘. 공개 페이지 HTTP 200, 주가 연결 종목 수 바이오 16·미국대표 91·KOSPI 92·KOSDAQ 82, AI 탭 접힌 주가 설명 5개 확인.
+
+2026-11-14 KoAct 전체 보유 이력 및 수익률 추이: 실행 43560926180·43561180023에서 KoAct 국내 4종 62일 채움, 43562545289에서 미국대표 수익률 추이(FunETF 누적 NAV 수익률) 게시 및 해외 3종 거부 원인(CASH00000001 설정현금액 무비중 항목) 확인, 커밋 35a016a·실행 https://github.com/kns7676-commits/time-etf-dashboard/actions/runs/43563454552 에서 해외 3종 186건 추가. KoAct 7종 모두 62일(2026-09-13~) 실제 비중 보유. 모든 실행에서 게시와 Telegram 링크 전송 단계 성공. 첫 화면·AI 탭은 TIME AI 5종만 표시.
