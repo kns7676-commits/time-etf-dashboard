@@ -15,6 +15,8 @@ test('Samsung holdings skip unweighted cash only and reject incomplete lists',()
  assert.equal(parsed.date,'2026-11-13');assert.equal(parsed.rows.length,5);
  assert.throws(()=>parseSamsungHoldings({pdf:{gijunYMD:'20261113',totalCnt:9,list:stocks(5)}}),/Incomplete/);
  assert.throws(()=>parseSamsungHoldings(samsung('20261113',[...stocks(5),{itmNo:'000001',secNm:'x',ratio:''}])),/Missing non-cash/);
+ assert.equal(parseSamsungHoldings(samsung('20261113',[...stocks(5),{itmNo:'CASH00000001',secNm:'설정현금액',ratio:null}])).rows.length,5);
+ assert.throws(()=>parseSamsungHoldings(samsung('20261113',[...stocks(5),{itmNo:'CASHFLOW',secNm:'x',ratio:''}])),/Missing non-cash/);
  assert.throws(()=>parseSamsungHoldings(samsung('20261113',stocks(5).map(r=>({...r,ratio:'10'})))),/sum outside/);
 });
 test('TIGER holdings require the full published row count and preserve negative cash',()=>{

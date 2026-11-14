@@ -25,7 +25,8 @@ export function parseSamsungHoldings(data){
  const rows=[];
  for(const r of pdf.list){
   const weight=num(r.ratio);
-  if(weight===null&&/^KRD/.test(r.itmNo))continue;
+  // Unweighted cash lines: domestic KRD… deposits and the creation cash line (CASH00000001 설정현금액) in overseas funds.
+  if(weight===null&&/^(KRD|CASH\d)/.test(r.itmNo))continue;
   if(weight===null)throw Error('Missing non-cash holding weight: '+JSON.stringify([r.itmNo,r.secNm]));
   rows.push({code:String(r.itmNo),name:r.secNm,weight});
  }
