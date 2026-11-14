@@ -8,19 +8,19 @@ const bio=[
 const us=[
  {ticker:'426030',isin:'KR7426030003',name:'TIME 미국나스닥100액티브',historyId:'2'},
  {ticker:'456600',isin:'KR7456600006',name:'TIME 글로벌AI인공지능액티브',historyId:'6'},
- {ticker:'0174B0',isin:'KR70174B0001',name:'KoAct 글로벌AI메모리반도체액티브'},
- {ticker:'0186L0',isin:'KR70186L0005',name:'KoAct 미국로봇피지컬AI액티브'},
- {ticker:'0015B0',isin:'KR70015B0004',name:'KoAct 미국나스닥성장기업액티브'}
+ {ticker:'0174B0',isin:'KR70174B0001',name:'KoAct 글로벌AI메모리반도체액티브',historyId:'0174B0'},
+ {ticker:'0186L0',isin:'KR70186L0005',name:'KoAct 미국로봇피지컬AI액티브',historyId:'0186L0'},
+ {ticker:'0015B0',isin:'KR70015B0004',name:'KoAct 미국나스닥성장기업액티브',historyId:'0015B0'}
 ];
 const kospi=[
  {ticker:'385720',isin:'KR7385720008',name:'TIME 코스피액티브',historyId:'11'},
- {ticker:'0193G0',isin:'KR70193G0003',name:'KoAct 코스피액티브'},
+ {ticker:'0193G0',isin:'KR70193G0003',name:'KoAct 코스피액티브',historyId:'0193G0'},
  {ticker:'495060',isin:'KR7495060006',name:'TIME 코리아밸류업액티브',historyId:'15'},
- {ticker:'495230',isin:'KR7495230005',name:'KoAct 코리아밸류업액티브'}
+ {ticker:'495230',isin:'KR7495230005',name:'KoAct 코리아밸류업액티브',historyId:'495230'}
 ];
 const kosdaq=[
  {ticker:'0162Y0',isin:'KR70162Y0008',name:'TIME 코스닥액티브',historyId:'24'},
- {ticker:'0163Y0',isin:'KR70163Y0007',name:'KoAct 코스닥액티브'}
+ {ticker:'0163Y0',isin:'KR70163Y0007',name:'KoAct 코스닥액티브',historyId:'0163Y0'}
 ];
 const configs={bio:{label:'바이오',eyebrow:'BIO ETF MONITOR',products:bio,market:'국내주식'},us:{label:'미국대표',eyebrow:'US ETF MONITOR',products:us,market:'해외주식'},kospi:{label:'KOSPI',eyebrow:'KOSPI ETF MONITOR',products:kospi,market:'국내주식'},kosdaq:{label:'KOSDAQ',eyebrow:'KOSDAQ ETF MONITOR',products:kosdaq,market:'국내주식'}};
 export function comparisonConfig(universe='bio'){

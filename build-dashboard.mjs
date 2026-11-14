@@ -1,7 +1,9 @@
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import {randomUUID} from 'node:crypto';
 import {groupedWeightReport} from './grouped-weight-report.mjs';
-const history=JSON.parse(await readFile('state/cumulative.json','utf8'));
+import {themeHistory} from './all-holdings/theme-tabs.mjs';
+// The root dashboard shows TIME AI products only; bio and KoAct holdings are stored for the comparison tabs.
+const history=themeHistory(JSON.parse(await readFile('state/cumulative.json','utf8')),'ai');
 const {html,series}=groupedWeightReport(history);
 const id=randomUUID();
 const controls=`<header class="dashboard-head"><div><span class="eyebrow">TIME ETF MONITOR</span><h1>ETF 보유종목 상황판</h1><p>날짜별 실제 비중 · 현재 비중 순 · 10종목씩 비교</p></div><div class="stats"><b>${series.length}<small>ETF</small></b><b>${series.reduce((n,p)=>n+p.rows.length,0)}<small>종목 기록</small></b><b>${series.reduce((n,p)=>n+p.groups.length,0)}<small>그래프</small></b></div></header><div class="controls"><label>ETF<select id="etf-filter"><option value="">전체 ETF</option>${series.map(p=>`<option value="etf-${p.code}">${p.name}</option>`).join('')}</select></label><label class="search">종목 검색<input id="search" type="search" placeholder="예: NVIDIA, 삼성전자" autocomplete="off"></label><label class="check"><input id="events-only" type="checkbox">편입·편출 있는 그래프</label><button id="reset" type="button">초기화</button><p id="filter-status" role="status"></p></div>`;

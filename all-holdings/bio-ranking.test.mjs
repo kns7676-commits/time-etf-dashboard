@@ -55,5 +55,9 @@ test('rendered stock controls update selection, graph, legend and exact weights 
  buttons[2].events.click();assert.equal(select.value,'2');assert.equal(get('.bio-history').scrolled,true);
  get('[data-bio-first]').events.click();assert.equal(select.value,'0');
  // The flow controls come from the shared AI-tab script, bound only to this chart.
- assert.match(html,/<figure class="bio-stock-chart flow-chart">/);assert.ok(html.includes("document.querySelectorAll('figure.flow-chart')"));
+ assert.match(html,/<figure class="bio-stock-chart flow-chart">/);
+ // Change markers: increases (▲, 편입) in red and decreases (▼, 편출) in blue, regardless of ETF colour.
+ assert.ok(html.includes(`class="change-marker" x="'+x(c.j)+'" y="'+(y(c.b)-12)+'" text-anchor="middle" style="fill:'+(c.d>0?'#dc2626':'#2563eb')+'"`));
+ // Auto-scroll stops at the latest date instead of jumping back to the first date.
+ assert.ok(html.includes('&&pos<max-1)')&&!html.includes('pos=0;box.scrollLeft=0'));assert.ok(html.includes("document.querySelectorAll('figure.flow-chart')"));
 });

@@ -53,3 +53,9 @@ test('historical selections append past holdings once, without cash or current-r
  assert.ok(!rows.some(r=>/KRD|예금/.test(r.code+r.name)));
  assert.equal(rows.filter(r=>r.code==='AMD').length,1);
 });
+test('the AI tab and root dashboard exclude bio and KoAct holdings stored for comparison tabs',async()=>{
+ const {themeHistory}=await import('./theme-tabs.mjs');
+ const day={sentDate:'2026-11-14',products:{'2':{name:'TIME 미국나스닥100액티브',rows:[]},'13':{name:'TIME K바이오액티브',theme:'bio',rows:[]},'0174B0':{name:'KoAct 글로벌AI메모리반도체액티브',theme:'koact',rows:[]},'462900':{name:'KoAct 바이오헬스케어액티브',theme:'bio',rows:[]}}};
+ assert.deepEqual(Object.keys(themeHistory([day],'ai')[0].products),['2']);
+ assert.deepEqual(Object.keys(themeHistory([day],'bio')[0].products).sort(),['13','462900']);
+});

@@ -6,7 +6,7 @@ const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'
 export function themeHistory(history,theme){
  if(theme==='all')return history;
  const isBio=p=>p.theme==='bio'||/바이오|헬스케어/i.test(p.name);
- return history.map(day=>({...day,products:Object.fromEntries(Object.entries(day.products).filter(([,p])=>theme==='bio'?isBio(p):!isBio(p)))})).filter(day=>Object.keys(day.products).length);
+ return history.map(day=>({...day,products:Object.fromEntries(Object.entries(day.products).filter(([,p])=>theme==='bio'?isBio(p):!isBio(p)&&!p.theme))})).filter(day=>Object.keys(day.products).length);
 }
 export function bioThemePage(comparison,history=[comparison],{holdingsHistory=[],prices={}}={}){
  const config=comparisonConfig(comparison.universe);

@@ -1,4 +1,4 @@
-import {fetchBioHoldings} from './bio-holdings.mjs';
+import {fetchBioHoldings,fetchKoactHoldings} from './bio-holdings.mjs';
 import {readFile,writeFile} from 'node:fs/promises';
 import {request} from './request.mjs';
 import {mergeHistory} from './weight-report.mjs';
@@ -16,5 +16,6 @@ if(products['13']){products['13'].theme='bio';products['13'].ticker='463050';pro
 const history=JSON.parse(await readFile('state/cumulative.json','utf8'));
 const sentDate=new Date(Date.now()+9*3600*1000).toISOString().slice(0,10);
 Object.assign(products,await fetchBioHoldings(request,sentDate,{onFailure:(p,e)=>console.warn('::warning::Bio holdings skipped for '+p.name+': '+e.message)}));
+Object.assign(products,await fetchKoactHoldings(request,sentDate,{onFailure:(p,e)=>console.warn('::warning::KoAct holdings skipped for '+p.name+': '+e.message)}));
 await writeFile('state/cumulative.json',JSON.stringify(mergeHistory(history,{sentDate,products})));
 console.log('Public holdings refreshed: '+sentDate);

@@ -52,8 +52,8 @@ export const zoomScript=selector=>`document.querySelectorAll('${selector}').forE
  box.addEventListener('touchstart',e=>{if(e.touches.length===2)start={d:dist(e.touches),z};},{passive:true});
  box.addEventListener('touchmove',e=>{if(!start||e.touches.length!==2)return;e.preventDefault();const r=box.getBoundingClientRect();set(start.z*dist(e.touches)/start.d,(e.touches[0].clientX+e.touches[1].clientX)/2-r.left);},{passive:false});
  box.addEventListener('touchend',e=>{if(e.touches.length<2)start=null;});
- // 자동 이동: 날짜 방향으로 천천히 스크롤하고 끝에서 잠시 멈춘 뒤 처음부터 다시 갑니다.
- // 사람이 넘기거나 핀치하면 3초 쉬었다가 그 위치부터 이어 가며, 속도는 버튼으로 바꿉니다.
+ // 자동 이동: 날짜 방향으로 천천히 스크롤하다가 가장 최근 날짜에 닿으면 그 자리에 멈춥니다(처음으로 되돌아가지 않음).
+ // 사람이 직접 최신 날짜까지 넘겨도 그대로 멈춰 있고, 사람이 왼쪽으로 넘기면 3초 뒤 그 위치부터 다시 최신 날짜까지 이어 갑니다.
  const speeds=[.25,.5,1,2,4],play=tools.querySelector('[data-auto="toggle"]'),speedLabel=tools.querySelector('.speed');
  let si=2,playing=!matchMedia('(prefers-reduced-motion: reduce)').matches,seen=false,touching=false,from=null,hold=0,wait=0,pos=0,last=null;
  const show=()=>{play.textContent=playing?'⏸ 멈춤':'▶ 자동 이동';speedLabel.textContent=speeds[si]+'배';};show();
@@ -68,10 +68,7 @@ export const zoomScript=selector=>`document.querySelectorAll('${selector}').forE
   const dt=last===null?0:Math.min(100,now-last),max=box.scrollWidth-box.clientWidth;last=now;
   // 자동 이동이 아닌 좌우 위치 변화(스크롤바 끌기, 관성 스크롤)는 사람이 넘긴 것으로 봅니다.
   if(Math.abs(box.scrollLeft-pos)>2){pos=box.scrollLeft;hold=Math.max(hold,now+3000);}
-  if(playing&&seen&&!touching&&max>0&&now>hold){
-   if(pos>=max-1){if(!wait)wait=now+2500;else if(now>wait){wait=0;pos=0;box.scrollLeft=0;}}
-   else{pos=Math.min(max,pos+40*speeds[si]*dt/1000);box.scrollLeft=pos;}
-  }
+  if(playing&&seen&&!touching&&max>0&&now>hold&&pos<max-1){pos=Math.min(max,pos+40*speeds[si]*dt/1000);box.scrollLeft=pos;}
   requestAnimationFrame(tick);
  };
  requestAnimationFrame(tick);

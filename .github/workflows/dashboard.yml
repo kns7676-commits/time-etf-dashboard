@@ -8,6 +8,10 @@ on:
         description: Fetch latest official holdings
         type: boolean
         default: true
+      backfill_koact:
+        description: Fill past KoAct holdings into history (stops on rate limit; re-run to continue)
+        type: boolean
+        default: false
 permissions:
   contents: write
   pages: write
@@ -31,6 +35,9 @@ jobs:
       - name: Refresh official public holdings
         if: github.event_name == 'schedule' || inputs.refresh
         run: node --use-system-ca refresh.mjs
+      - name: Backfill KoAct holdings history
+        if: inputs.backfill_koact
+        run: node --use-system-ca backfill-koact.mjs
       - name: Verify latest FunETF bio comparison before publication
         run: node refresh-bio-comparison.mjs
       - name: Verify latest US ETF comparison before publication
