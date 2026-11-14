@@ -24,3 +24,5 @@
 2026-11-14 KOSPI·KOSDAQ 탭 및 추세 이력 연결: 커밋 c7154a7, 실행 https://github.com/kns7676-commits/time-etf-dashboard/actions/runs/43553793396 성공(refresh=false). 테스트, 바이오·미국대표·KOSPI·KOSDAQ 비교 수집, 빌드, 이력 저장, 게시, Telegram 링크 전송 단계 모두 성공. 공개 전체·바이오·미국대표·KOSPI·KOSDAQ 페이지 HTTP 200, 다섯 탭, 보정 합계 100.00%, 자료 기간 안내 확인. TIME ETF 그래프는 전체 보유 이력으로 2026-09-13부터 연결. 바이오 전체 보유종목은 TIME·TIGER·KODEX 저장, KoAct는 HTTP 429로 오늘 미수집(공백 처리). 사용자 단말 수신 확인은 별도.
 
 2026-11-14 폰 화면 개선: 커밋 56e3fba, 실행 https://github.com/kns7676-commits/time-etf-dashboard/actions/runs/43557064765 성공(테스트 104개, 네 비교 수집, 게시, Telegram 링크 전송 단계 성공). 폭 760px 이하에서는 비교표 대신 ETF별 좌우 넘김 카드(TOP10 종목·코드·보정/원본 비중·합계, 표와 같은 색) 표시. PC 표의 왼쪽 행 제목 고정 해제로 좌우 이동 시 종목명 가림 해소. 공개 바이오·미국대표·KOSPI·KOSDAQ 페이지 HTTP 200, 카드 수 4/5/4/2 및 합계 100.00% 확인. 사용자 단말 수신 확인은 별도.
+
+2026-11-14 비교 그래프 개선: 커밋 2425ac9, 실행 https://github.com/kns7676-commits/time-etf-dashboard/actions/runs/43558015517 성공(테스트 105개, 네 비교 수집, 게시, Telegram 링크 전송 단계 성공). 종목별 비교 그래프 Y축을 관측값 범위로 확대하고 높이 고정. 비교 탭 하단에 AI 탭과 같은 ETF별 전체 종목 그래프 추가(바이오 3·미국대표 2·KOSPI 2·KOSDAQ 1개, KoAct는 전체 보유 이력 생기면 추가). 공개 네 페이지 HTTP 200 확인.
