@@ -8,6 +8,8 @@ import {verifyPublication} from './all-holdings/bio-comparison.mjs';
 import {comparisonConfig} from './all-holdings/comparison-config.mjs';
 import {monitoringDates} from './all-holdings/comparison-trends.mjs';
 import {priceKey} from './all-holdings/bio-ranking.mjs';
+import {fetchReturns} from './all-holdings/returns-chart.mjs';
+import {request} from './request.mjs';
 const history=JSON.parse(await readFile('state/cumulative.json','utf8'));
 const comparisons={};
 for(const universe of COMPARISON_THEMES)comparisons[universe]={snapshot:verifyPublication(JSON.parse(await readFile('state/'+universe+'-comparison.json','utf8'))),history:JSON.parse(await readFile('state/'+universe+'-comparison-history.json','utf8'))};
@@ -25,12 +27,15 @@ for(const universe of COMPARISON_THEMES){
  for(const s of list)for(const p of s.products)for(const r of p.rows){const key=priceKey(r.code);if(known.has(key)||extra.has(key))continue;const yahoo=/^\d{6}$/.test(r.code)?r.code:comparisonConfig(universe).market==='해외주식'&&/^[A-Z]{1,5}(\.[A-Z])?$/.test(r.code)?r.code+' US EQUITY':null;if(yahoo)extra.set(key,yahoo);}
 }
 if(extra.size){const from=history.map(d=>d.sentDate).sort()[0];Object.assign(prices,await fetchProductPrices([{sentDate:from,products:{comparison:{date:from,rows:[...extra.values()].map(code=>({code}))}}}],['comparison']));}
+// FunETF cumulative return series, shown under the comparison table. A failure only omits the section.
+const RETURN_THEMES=['us'],returns={};
+for(const universe of RETURN_THEMES){try{returns[universe]=await fetchReturns(request,universe);}catch(e){console.warn('::warning::Return chart skipped for '+universe+': '+e.message);}}
 const scoped=themeHistory(history,'ai');
 if(!scoped.length)throw Error('No holdings for theme: ai');
 const aiPage=groupedWeightReport(scoped,{prices}).html;
 for(const theme of ['all','ai',...COMPARISON_THEMES]){
  const isComparison=COMPARISON_THEMES.includes(theme),snapshot=comparisons[isComparison?theme:'bio'].snapshot;
- let html=isComparison?bioThemePage(snapshot,comparisons[theme].history,{holdingsHistory:history,prices}):aiPage;
+ let html=isComparison?bioThemePage(snapshot,comparisons[theme].history,{holdingsHistory:history,prices,returns:returns[theme]??null}):aiPage;
  if(!isComparison)html=insertSox(html,data);
  html=addThemeTabs(html,theme,isComparison?{}:scoped.at(-1).products,snapshot.checkedAt);
  const path='output/site/all-holdings'+(theme==='all'?'':'/'+theme);

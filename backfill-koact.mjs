@@ -26,6 +26,7 @@ export async function backfill(history,{fetch=fetchKoactHoldings,products=KOACT_
    const got=await fetch(request,target.date,{products:want,walkBack:1,pause:()=>pause(gap),onFailure:(p,e)=>{
     if(/429|rate limit/i.test(e.message)){limited=e;return;}
     cache.set(key(p,target.date),null);
+    log(p.name+' '+target.date+': '+e.message);
     const n=(misses.get(p.code)||0)+1;misses.set(p.code,n);
     if(n>=2){ended.add(p.code);log(p.name+': no data on two consecutive dates through '+target.date+'; treating as before listing');}
    }});

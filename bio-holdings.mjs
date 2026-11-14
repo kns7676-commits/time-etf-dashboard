@@ -13,19 +13,20 @@ export function sourceDate(value){
  return iso;
 }
 function validateRows(rows){
- if(rows.length<5||new Set(rows.map(r=>r.code)).size!==rows.length||rows.some(r=>!r.code||!r.name||!Number.isFinite(r.weight)))throw Error('Invalid or incomplete holdings');
+ const dup=rows.filter((r,i)=>rows.findIndex(x=>x.code===r.code)!==i),bad=rows.filter(r=>!r.code||!r.name||!Number.isFinite(r.weight));
+ if(rows.length<5||dup.length||bad.length)throw Error('Invalid or incomplete holdings: '+rows.length+' rows'+(dup.length?'; duplicate codes '+dup.slice(0,5).map(r=>JSON.stringify(r.code)+' '+r.name).join(', '):'')+(bad.length?'; incomplete '+bad.slice(0,5).map(r=>JSON.stringify([r.code,r.name,r.weight])).join(', '):''));
  const sum=rows.reduce((s,r)=>s+r.weight,0);
  if(sum<95||sum>105)throw Error('Holdings weight sum outside expected range: '+sum);
  return rows.sort((a,b)=>b.weight-a.weight);
 }
 export function parseSamsungHoldings(data){
  const pdf=data.pdf;
- if(!pdf||!Array.isArray(pdf.list)||pdf.list.length!==Number(pdf.totalCnt))throw Error('Incomplete Samsung holdings list');
+ if(!pdf||!Array.isArray(pdf.list)||pdf.list.length!==Number(pdf.totalCnt))throw Error('Incomplete Samsung holdings list'+(pdf?': '+(Array.isArray(pdf.list)?pdf.list.length:'no list')+' of '+pdf.totalCnt:': no pdf'));
  const rows=[];
  for(const r of pdf.list){
   const weight=num(r.ratio);
   if(weight===null&&/^KRD/.test(r.itmNo))continue;
-  if(weight===null)throw Error('Missing non-cash holding weight');
+  if(weight===null)throw Error('Missing non-cash holding weight: '+JSON.stringify([r.itmNo,r.secNm]));
   rows.push({code:String(r.itmNo),name:r.secNm,weight});
  }
  return {date:sourceDate(pdf.gijunYMD),rows:validateRows(rows),holdingsScope:'공식 비중 제공 종목 전체 · 비중 미제공 현금 제외'};
