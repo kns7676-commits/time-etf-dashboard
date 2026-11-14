@@ -36,3 +36,5 @@
 2026-11-14 바이오 이력·전 탭 수익률: 커밋 3088b07, 실행 https://github.com/kns7676-commits/time-etf-dashboard/actions/runs/43567216482 성공(게시, Telegram 링크 전송 단계 성공). FunETF 날짜별 구성종목으로 TIME K바이오·TIGER·KODEX 바이오 183건(자료일 2026-09-11~) 채움. 네 비교 탭 모두 수익률 추이 표시, 모든 비교 ETF 비중 이력 62일. 공개 페이지 HTTP 200 확인.
 
 2026-11-14 기간별 TOP10 비교: 커밋 2910cad, 실행 https://github.com/kns7676-commits/time-etf-dashboard/actions/runs/43582428902 성공(refresh=false; 테스트, 네 비교 확인, 빌드, 이력 저장, 게시, Telegram 링크 전송 단계 성공). 네 비교 탭에 1/3/6개월 전·상장일 TOP10 비교 섹션 추가(FunETF 날짜별 구성종목, state/period-holdings.json 캐시). 공개 bio/us/kospi/kosdaq HTTP 200, 패널 16/20/16/8개, 기간 자료 경고 없음. 휴대폰 수신은 사용자 확인 필요.
+
+2026-11-14 수익률 기간 선택: 커밋 ecaabe4, 실행 https://github.com/kns7676-commits/time-etf-dashboard/actions/runs/43583252669 성공(refresh=false; 테스트, 네 비교 확인, 빌드, 게시, Telegram 링크 전송 단계 성공). 네 비교 탭 수익률 추이에 1/3/5/10년 버튼과 시작일·종료일 조회 추가(ETF별 10년 주별+1년 일별 FunETF 자료 연결). 공개 bio/us/kospi/kosdaq HTTP 200, 장기 자료 사용 확인, 수익률 경고 없음. 휴대폰 수신은 사용자 확인 필요.
