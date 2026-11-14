@@ -2,13 +2,14 @@
   {
     "universe": "bio",
     "date": "2026-11-13",
-    "checkedAt": "2026-11-14T02:48:03.554Z",
+    "checkedAt": "2026-11-14T03:52:18.389Z",
     "source": "https://www.funetf.co.kr/product/comparison/etf?itemIds=KR7364970004,KR7463050005,KR7462900002,KR7244580007",
     "products": [
       {
         "ticker": "364970",
         "isin": "KR7364970004",
         "name": "TIGER 바이오TOP10",
+        "historyId": "364970",
         "count": 11,
         "rows": [
           {
@@ -78,6 +79,7 @@
         "ticker": "463050",
         "isin": "KR7463050005",
         "name": "TIME K바이오액티브",
+        "historyId": "13",
         "count": 28,
         "rows": [
           {
@@ -147,6 +149,7 @@
         "ticker": "462900",
         "isin": "KR7462900002",
         "name": "KoAct 바이오헬스케어액티브",
+        "historyId": "462900",
         "count": 27,
         "rows": [
           {
@@ -216,6 +219,7 @@
         "ticker": "244580",
         "isin": "KR7244580007",
         "name": "KODEX 바이오",
+        "historyId": "244580",
         "count": 51,
         "rows": [
           {

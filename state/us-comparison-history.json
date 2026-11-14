@@ -2,13 +2,14 @@
   {
     "universe": "us",
     "date": "2026-11-13",
-    "checkedAt": "2026-11-14T02:48:04.055Z",
+    "checkedAt": "2026-11-14T03:52:19.781Z",
     "source": "https://www.funetf.co.kr/product/comparison/etf?itemIds=KR7426030003,KR7456600006,KR70174B0001,KR70186L0005,KR70015B0004",
     "products": [
       {
         "ticker": "426030",
         "isin": "KR7426030003",
         "name": "TIME 미국나스닥100액티브",
+        "historyId": "2",
         "count": 46,
         "rows": [
           {
@@ -78,6 +79,7 @@
         "ticker": "456600",
         "isin": "KR7456600006",
         "name": "TIME 글로벌AI인공지능액티브",
+        "historyId": "6",
         "count": 47,
         "rows": [
           {
