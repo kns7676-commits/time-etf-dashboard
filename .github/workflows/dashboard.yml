@@ -1,4 +1,4 @@
-name: Update public ETF dashboard
+name: Update ETF dashboard and send Telegram link
 on:
   schedule:
     - cron: '0 21 * * *'
@@ -50,3 +50,9 @@ jobs:
       - name: Deploy dashboard
         id: deployment
         uses: actions/deploy-pages@v4
+      - name: Send published dashboard link
+        run: node notify.mjs
+        env:
+          DASHBOARD_URL: ${{ steps.deployment.outputs.page_url }}all-holdings/
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
