@@ -42,3 +42,5 @@
 2026-11-14 기간별 TOP10 통합 표: 커밋 26ea0e4, 실행 https://github.com/kns7676-commits/time-etf-dashboard/actions/runs/43583765039 성공(refresh=false; 테스트, 빌드, 게시, Telegram 링크 전송 단계 성공). ETF 선택 버튼을 없애고 기간별로 모든 ETF를 한 표(ETF별 비중·비중 변동폭·과거 비중, 해당 TOP10에 없으면 공란)로 통합. 공개 bio/us/kospi/kosdaq HTTP 200, 기간 패널 4개씩, 경고 없음. 휴대폰 수신은 사용자 확인 필요.
 
 2026-11-14 사용자 확인: 실행 43583765039의 Telegram 링크를 휴대폰에서 수신함.
+
+2026-11-14 난독화 바이오 단독 페이지: 커밋 455bd73, 실행 https://github.com/kns7676-commits/time-etf-dashboard/actions/runs/43585548911 성공(refresh=false; Build protected standalone bio page, 게시, Telegram 링크 전송 단계 성공). https://kns7676-commits.github.io/time-etf-dashboard/bio-share/ HTTP 200, 2.77MB, 소스에 원문 없음, 브라우저에서 비교표·기간별 TOP10·수익률 기간 선택 확인, 테마 탭 없음. 매일 06:00 실행에서 함께 갱신. 난독화이며 암호화가 아님.
