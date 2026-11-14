@@ -30,7 +30,9 @@ jobs:
       - run: npm test
       - name: Refresh official public holdings
         if: github.event_name == 'schedule' || inputs.refresh
-        run: node refresh.mjs
+        run: node --use-system-ca refresh.mjs
+      - name: Verify latest FunETF bio comparison before publication
+        run: node refresh-bio-comparison.mjs
       - run: node build-dashboard.mjs
       - name: Build latest all-holdings dashboard
         run: node build-all-holdings.mjs
@@ -38,7 +40,7 @@ jobs:
         run: |
           git config user.name 'ETF dashboard bot'
           git config user.email 'etf-dashboard@users.noreply.github.com'
-          git add state/cumulative.json
+          git add state/cumulative.json state/bio-comparison.json state/bio-comparison-history.json
           if ! git diff --cached --quiet; then
             git commit -m 'Update public ETF holdings history'
             git push
@@ -53,6 +55,6 @@ jobs:
       - name: Send published dashboard link
         run: node notify.mjs
         env:
-          DASHBOARD_URL: ${{ steps.deployment.outputs.page_url }}all-holdings/
+          DASHBOARD_URL: ${{ steps.deployment.outputs.page_url }}all-holdings/?v=${{ github.run_id }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
