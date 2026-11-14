@@ -50,6 +50,6 @@ test('bio tab preserves the complete designed sharing content and navigation wit
  for(const id of ['bio-comparison-title','bio-ranking-title','bio-history-title'])assert.ok(page.includes('id="'+id+'"'));
  assert.ok(page.includes('class="bio-history-links"'));
  assert.ok(page.includes('class="bio-ranking-heading"'));
- assert.ok(page.includes('font/woff2;base64,'));
+ assert.ok(!page.includes('font/woff2;base64,')&&page.includes("'Malgun Gothic'"));
  const h=[{products:{a:{name:'기존 ETF'},b:{name:'바이오 ETF'}}}];assert.deepEqual(Object.keys(themeHistory(h,'ai')[0].products),['a']);
 });

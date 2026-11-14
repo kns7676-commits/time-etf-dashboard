@@ -1,6 +1,5 @@
 ﻿import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import {groupedWeightReport} from './all-holdings/grouped-weight-report.mjs';
-import {copyFile} from 'node:fs/promises';
 import {fetchSox,insertSox} from './all-holdings/sox-card.mjs';
 import {fetchProductPrices} from './all-holdings/stock-prices.mjs';
 import {addThemeTabs,themeHistory,bioThemePage,COMPARISON_THEMES} from './all-holdings/theme-tabs.mjs';
@@ -50,7 +49,6 @@ for(const theme of ['all','ai',...COMPARISON_THEMES]){
  const path='output/site/all-holdings'+(theme==='all'?'':'/'+theme);
  await mkdir(path,{recursive:true});
  await writeFile(path+'/index.html',html);
- if(isComparison)await copyFile('assets/fonts/Pretendard-LICENSE.txt',path+'/Pretendard-LICENSE.txt');
  console.log(isComparison?'Theme '+theme+': FunETF comparison through '+snapshot.date:'Theme '+theme+': '+Object.keys(scoped.at(-1).products).length+' ETFs through '+scoped.at(-1).sentDate);
 }
 console.log('SOX '+data.price+' at '+new Date(data.time*1000).toISOString());

@@ -37,7 +37,7 @@ test('US tab reuses the BIO design, stock controls and return links with five-pr
  assert.ok(page.includes('5개 ETF를 각각 20%씩'));assert.ok(page.includes('보정 비중의 합 ÷ 5'));
  assert.equal((page.match(/class="bio-stock"/g)||[]).length,50);
  assert.equal((page.match(/>100\.00<\/td>/g)||[]).length,5);
- assert.ok(page.includes('font/woff2;base64,'));assert.ok(page.includes('height:46px;padding:6px 12px!important'));
+ assert.ok(!page.includes('font/woff2;base64,')&&page.includes("'Malgun Gothic'"));assert.ok(page.includes('height:46px;padding:6px 12px!important'));
  assert.ok(page.includes('class="bio-ranking-heading"'));assert.ok(page.includes('class="bio-history-links"'));
  assert.ok(page.includes('href="#bio-comparison-title"'));assert.ok(page.includes('href="#bio-ranking-title"'));
  assert.ok(!page.includes('id="sox-card"'));assert.ok(!page.includes('바이오 ETF 4종'));

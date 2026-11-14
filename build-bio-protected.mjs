@@ -2,7 +2,7 @@
 // build-bio-share.mjs) is gzip-compressed, XOR-scrambled with a random key and base64-encoded; a small loader
 // restores it in the browser. This is obfuscation, not encryption: anyone with developer tools can see the result.
 // Usage: node build-bio-protected.mjs [outDir]   (default output/bio-share; the workflow publishes output/site/bio-share)
-import {readFile,writeFile,mkdir,copyFile} from 'node:fs/promises';
+import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import {gzipSync} from 'node:zlib';
 import {randomBytes} from 'node:crypto';
 import {applyBioDesign} from './all-holdings/bio-design.mjs';
@@ -25,6 +25,5 @@ if(/build-bio-protected\.mjs$/.test(process.argv[1]||'')){
  const page=protectHtml(html);
  await mkdir(out,{recursive:true});
  await writeFile(out+'/index.html',page);
- await copyFile('assets/fonts/Pretendard-LICENSE.txt',out+'/Pretendard-LICENSE.txt');
  console.log('Protected bio page: '+out+'/index.html ('+(page.length/1048576).toFixed(2)+' MB, source '+(html.length/1048576).toFixed(2)+' MB)');
 }
