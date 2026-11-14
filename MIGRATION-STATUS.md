@@ -40,3 +40,5 @@
 2026-11-14 수익률 기간 선택: 커밋 ecaabe4, 실행 https://github.com/kns7676-commits/time-etf-dashboard/actions/runs/43583252669 성공(refresh=false; 테스트, 네 비교 확인, 빌드, 게시, Telegram 링크 전송 단계 성공). 네 비교 탭 수익률 추이에 1/3/5/10년 버튼과 시작일·종료일 조회 추가(ETF별 10년 주별+1년 일별 FunETF 자료 연결). 공개 bio/us/kospi/kosdaq HTTP 200, 장기 자료 사용 확인, 수익률 경고 없음. 휴대폰 수신은 사용자 확인 필요.
 
 2026-11-14 기간별 TOP10 통합 표: 커밋 26ea0e4, 실행 https://github.com/kns7676-commits/time-etf-dashboard/actions/runs/43583765039 성공(refresh=false; 테스트, 빌드, 게시, Telegram 링크 전송 단계 성공). ETF 선택 버튼을 없애고 기간별로 모든 ETF를 한 표(ETF별 비중·비중 변동폭·과거 비중, 해당 TOP10에 없으면 공란)로 통합. 공개 bio/us/kospi/kosdaq HTTP 200, 기간 패널 4개씩, 경고 없음. 휴대폰 수신은 사용자 확인 필요.
+
+2026-11-14 사용자 확인: 실행 43583765039의 Telegram 링크를 휴대폰에서 수신함.
