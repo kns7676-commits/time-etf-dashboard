@@ -1,7 +1,7 @@
 {
   "universe": "kospi",
   "date": "2026-11-13",
-  "checkedAt": "2026-11-14T05:05:07.998Z",
+  "checkedAt": "2026-11-14T05:19:44.611Z",
   "source": "https://www.funetf.co.kr/product/comparison/etf?itemIds=KR7385720008,KR70193G0003,KR7495060006,KR7495230005",
   "products": [
     {
@@ -78,6 +78,7 @@
       "ticker": "0193G0",
       "isin": "KR70193G0003",
       "name": "KoAct 코스피액티브",
+      "historyId": "0193G0",
       "count": 52,
       "rows": [
         {
@@ -217,6 +218,7 @@
       "ticker": "495230",
       "isin": "KR7495230005",
       "name": "KoAct 코리아밸류업액티브",
+      "historyId": "495230",
       "count": 57,
       "rows": [
         {
