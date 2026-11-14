@@ -39,6 +39,7 @@ test('bio comparison preserves AI content and renders an escaped, dated table af
  const s=parseComparison(fixture(),checkedAt);s.products[0].rows[0].name='<script>bad</script>';
  const table=comparisonTable(s);assert.ok(table.includes('&lt;script&gt;'));assert.ok(!table.includes('<script>bad'));
  assert.equal((table.match(/class="bio-stock"/g)||[]).length,40);
+ assert.equal((table.match(/>100\.00<\/td>/g)||[]).length,4);
  const point={t:1794531600,v:100},sox={price:101,previous:100,time:point.t,day:[point],week:[point],history:[point]};
  const page=addThemeTabs(insertSox(bioThemePage(s),sox),'bio',{},s.checkedAt);
  assert.ok(page.indexOf('id="sox-card"')<page.indexOf('<nav class="theme-tabs"'));
