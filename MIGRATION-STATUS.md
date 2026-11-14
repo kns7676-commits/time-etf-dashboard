@@ -34,3 +34,5 @@
 2026-11-14 KoAct 전체 보유 이력 및 수익률 추이: 실행 43560926180·43561180023에서 KoAct 국내 4종 62일 채움, 43562545289에서 미국대표 수익률 추이(FunETF 누적 NAV 수익률) 게시 및 해외 3종 거부 원인(CASH00000001 설정현금액 무비중 항목) 확인, 커밋 35a016a·실행 https://github.com/kns7676-commits/time-etf-dashboard/actions/runs/43563454552 에서 해외 3종 186건 추가. KoAct 7종 모두 62일(2026-09-13~) 실제 비중 보유. 모든 실행에서 게시와 Telegram 링크 전송 단계 성공. 첫 화면·AI 탭은 TIME AI 5종만 표시.
 
 2026-11-14 바이오 이력·전 탭 수익률: 커밋 3088b07, 실행 https://github.com/kns7676-commits/time-etf-dashboard/actions/runs/43567216482 성공(게시, Telegram 링크 전송 단계 성공). FunETF 날짜별 구성종목으로 TIME K바이오·TIGER·KODEX 바이오 183건(자료일 2026-09-11~) 채움. 네 비교 탭 모두 수익률 추이 표시, 모든 비교 ETF 비중 이력 62일. 공개 페이지 HTTP 200 확인.
+
+2026-11-14 기간별 TOP10 비교: 커밋 2910cad, 실행 https://github.com/kns7676-commits/time-etf-dashboard/actions/runs/43582428902 성공(refresh=false; 테스트, 네 비교 확인, 빌드, 이력 저장, 게시, Telegram 링크 전송 단계 성공). 네 비교 탭에 1/3/6개월 전·상장일 TOP10 비교 섹션 추가(FunETF 날짜별 구성종목, state/period-holdings.json 캐시). 공개 bio/us/kospi/kosdaq HTTP 200, 패널 16/20/16/8개, 기간 자료 경고 없음. 휴대폰 수신은 사용자 확인 필요.
