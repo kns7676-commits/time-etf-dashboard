@@ -1,1 +1,17 @@
-{"private":true,"type":"module","scripts":{"test":"node --test"}}
+{
+    "name":  "time-etf-dashboard",
+    "private":  true,
+    "type":  "module",
+    "engines":  {
+                    "node":  "\u003e=22"
+                },
+    "scripts":  {
+                    "test":  "node run-tests.mjs",
+                    "refresh":  "node refresh.mjs",
+                    "build":  "node build-dashboard.mjs \u0026\u0026 node build-all-holdings.mjs",
+                    "send":  "node notify.mjs",
+                    "report:original":  "node run-report.mjs original",
+                    "report:daily":  "node run-report.mjs daily",
+                    "report:extended":  "node run-report.mjs extended"
+                }
+}

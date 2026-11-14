@@ -1,9 +1,13 @@
-name: Update public ETF dashboard
+name: Update ETF dashboard and send Telegram link
 on:
   schedule:
     - cron: '0 21 * * *'
   workflow_dispatch:
     inputs:
+      send_telegram:
+        description: Send Telegram link after successful deployment
+        type: boolean
+        default: true
       refresh:
         description: Fetch latest official holdings
         type: boolean
@@ -27,7 +31,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - run: node --test
+      - run: npm test
       - name: Refresh official public holdings
         if: github.event_name == 'schedule' || inputs.refresh
         run: node refresh.mjs
@@ -50,3 +54,10 @@ jobs:
       - name: Deploy dashboard
         id: deployment
         uses: actions/deploy-pages@v4
+      - name: Send published dashboard link
+        if: github.event_name == 'schedule' || inputs.send_telegram
+        run: node notify.mjs
+        env:
+          DASHBOARD_URL: ${{ steps.deployment.outputs.page_url }}all-holdings/
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}

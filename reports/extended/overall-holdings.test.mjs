@@ -1,0 +1,30 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {overallHoldings,overallHoldingsTable,holdingMarket} from './overall-holdings.mjs';
+test('aggregate by security code, include absent ETFs in average, and limit to top 20',()=>{
+ const products={a:{name:'ETF A',date:'2026-09-22',rows:[{code:'X',name:'Shared',weight:12},...Array.from({length:25},(_,i)=>({code:String(i),name:'Stock '+i,weight:1+i/10}))]},b:{name:'ETF B',date:'2026-09-21',rows:[{code:'X',name:'Shared alternate',weight:8},{code:'Y',name:'Shared',weight:15},{code:'Z',name:'Exit',weight:0}]}};
+ const rows=overallHoldings(products);
+ assert.equal(rows.length,20);
+ assert.equal(rows[0].code,'X');
+ assert.equal(rows[0].total,20);
+ assert.equal(rows[0].average,10);
+ assert.equal(rows[0].count,2);
+ assert.equal(rows[1].code,'Y');
+ assert.equal(rows[1].average,7.5);
+ assert(!rows.some(r=>r.code==='Z'));
+ const html=overallHoldingsTable(products);
+ assert(html.includes('자료 2026-09-21'));
+ assert(html.includes('전체 ETF 통합'));
+});
+test('rank overseas and Korean shares independently and exclude non-stock assets',()=>{
+ const row=(code,name,weight)=>({code,name,weight});
+ const products={a:{name:'Mixed ETF',date:'2026-09-22',rows:[row('005930','삼성전자',10),row('NVDA US EQUITY','NVIDIA',8),row('SKHY US EQUITY','SK hynix',7),row('285A JP EQUITY','Kioxia',6),row('현금','현금',20),row('NQZ6 INDEX','NASDAQ',30),row('0043Y0','TIME 차이나AI테크액티브',40)]},b:{name:'Domestic ETF',date:'2026-09-22',rows:[row('005930','삼성전자',5)]}};
+ assert.deepEqual(overallHoldings(products,'korea').map(r=>r.code),['005930']);
+ assert.equal(overallHoldings(products,'korea')[0].total,15);
+ assert.deepEqual(overallHoldings(products,'overseas').map(r=>r.code),['NVDA US EQUITY','SKHY US EQUITY','285A JP EQUITY']);
+ assert.equal(holdingMarket(row('UNKNOWN','Unknown',1)),'other');
+ const html=overallHoldingsTable(products);
+ assert(html.includes('해외 주식 · 비중 상위 20종목'));
+ assert(html.includes('한국 주식 · 비중 상위 20종목'));
+ assert(!html.includes('<small>NQZ6 INDEX</small>'));
+});

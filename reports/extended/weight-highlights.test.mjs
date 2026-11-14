@@ -1,0 +1,24 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import vm from 'node:vm';
+import {groupedSeries,groupedWeightReport} from './grouped-weight-report.mjs';
+import {majorChanges} from './weight-highlights.mjs';
+test('major changes use source dates, event-day ranks and membership even at zero weight',()=>{
+ const snapshot=(sentDate,date,rows)=>({sentDate,products:{x:{name:'ETF',date,rows}}});
+ const row=(code,weight)=>({code,name:code,weight});
+ const history=[snapshot('2026-09-01','2026-08-31',[row('Intel',4),row('Sandisk',3),row('Exit',0)]),snapshot('2026-09-02','2026-09-01',[row('Intel',4.3),row('Sandisk',2.4),row('New',0)]),snapshot('2026-09-03','2026-09-01',[row('Intel',4.3),row('Sandisk',2.4),row('New',0)])];
+ const changes=majorChanges(groupedSeries(history)[0]);
+ assert.equal(changes.length,4);
+ assert(changes.every(c=>c.date==='2026-09-01'));
+ assert.equal(changes.find(c=>c.name==='Intel').rank,1);
+ assert.equal(changes.find(c=>c.name==='Intel').delta,.3);
+ assert.equal(changes.find(c=>c.name==='Sandisk').kind,'decrease');
+ assert.equal(changes.find(c=>c.name==='Exit').kind,'removed');
+ assert.equal(changes.find(c=>c.name==='New').kind,'added');
+ const html=groupedWeightReport(history).html;
+ new vm.Script(html.match(/<script>([\s\S]*?)<\/script>/)[1]);
+ assert(!html.includes('<aside class="highlights">'));
+ assert(html.includes('class="change-marker"'));
+ assert(html.includes('aria-pressed="false"'));
+ assert(!html.includes('????'));
+});

@@ -1,0 +1,1 @@
+{"name":"time-ai-weekly","private":true,"type":"module","scripts":{"test":"node --test","preview":"node weekly.mjs --dry-run","build":"node weekly.mjs --build","send":"node notify.mjs"},"engines":{"node":">=22"}}
