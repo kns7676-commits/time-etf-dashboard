@@ -1,5 +1,7 @@
 ﻿# 운영 상태 (2026-11-14)
 
+최신 화면 통합: 커밋 bd5be75, 실행 https://github.com/kns7676-commits/time-etf-dashboard/actions/runs/43548249470 성공. AI / 바이오 / 미국대표 ETF 세 탭을 게시함. BIO는 Netlify용 index.html과 동일한 BIO ETF MONITOR 헤더, 제목·설명, Pretendard 글자체, 간격을 줄인 표, 정규화 순위, 종목별 그래프 및 이동 버튼을 사용하며 SOX는 제외. 미국대표는 요청한 TIME 2개와 KoAct 3개를 동일한 디자인으로 표시. 매일 두 비교 데이터를 검증한 뒤 이력을 각각 저장하고 게시 후 Telegram 링크 전송. 테스트 94개 통과. 공개 AI·BIO·미국대표 페이지 모두 HTTP 200 및 실제 HTML 내용, 세 탭, 글자체 내장, ETF 순서, 보정 합계 100.00%, 이동 링크 검증 완료. 미국대표 이력은 2026-11-14부터 누적. 두 비교 자료 기준일은 2026-11-13. 재사용 방법은 AGENTS.md에 기록함.
+
 - 로컬 소스 통합 및 전체 테스트 79개 통과.
 - 원본 세 폴더의 782개 파일 전체 백업과 SHA-256 검증 완료.
 - 백업: backups/pre-consolidation-20261114-083506/.
