@@ -26,3 +26,5 @@
 2026-11-14 폰 화면 개선: 커밋 56e3fba, 실행 https://github.com/kns7676-commits/time-etf-dashboard/actions/runs/43557064765 성공(테스트 104개, 네 비교 수집, 게시, Telegram 링크 전송 단계 성공). 폭 760px 이하에서는 비교표 대신 ETF별 좌우 넘김 카드(TOP10 종목·코드·보정/원본 비중·합계, 표와 같은 색) 표시. PC 표의 왼쪽 행 제목 고정 해제로 좌우 이동 시 종목명 가림 해소. 공개 바이오·미국대표·KOSPI·KOSDAQ 페이지 HTTP 200, 카드 수 4/5/4/2 및 합계 100.00% 확인. 사용자 단말 수신 확인은 별도.
 
 2026-11-14 비교 그래프 개선: 커밋 2425ac9, 실행 https://github.com/kns7676-commits/time-etf-dashboard/actions/runs/43558015517 성공(테스트 105개, 네 비교 수집, 게시, Telegram 링크 전송 단계 성공). 종목별 비교 그래프 Y축을 관측값 범위로 확대하고 높이 고정. 비교 탭 하단에 AI 탭과 같은 ETF별 전체 종목 그래프 추가(바이오 3·미국대표 2·KOSPI 2·KOSDAQ 1개, KoAct는 전체 보유 이력 생기면 추가). 공개 네 페이지 HTTP 200 확인.
+
+2026-11-14 주가선 확대: 커밋 a5acc44, 실행 https://github.com/kns7676-commits/time-etf-dashboard/actions/runs/43558752457 성공(테스트 106개, 게시, Telegram 링크 전송 단계 성공). AI 탭 5개와 미국대표·KOSPI·KOSDAQ ETF별 그래프에 선택 종목 주가(검은 점선)와 비중 조정 세로선 표시. 같은 종목 주가는 한 번만 수집. 보유 자료일이 2일 미만인 바이오 ETF는 이력이 쌓이면 자동 추가. 공개 페이지 주가 패널 수 AI 5·미국대표 2·KOSPI 2·KOSDAQ 1 확인.
