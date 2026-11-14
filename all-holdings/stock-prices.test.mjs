@@ -40,6 +40,8 @@ test('price panel appears only for the configured ETF, after the weight chart',a
  assert.deepEqual(Object.keys(prices),['6']);assert.equal(prices['6']['INTC US EQUITY'].symbol,'INTC');assert.ok(prices['6']['현금'].skip);
  const {html}=groupedWeightReport(history,{prices});
  assert.equal((html.match(/class="price-panel"/g)||[]).length,1);
+ // The price summary and rebalancing table start collapsed; the title is the click target.
+ assert.match(html,/<details class="price-panel"(?![^>]*\bopen\b)[^>]*><summary class="price-title">/);
  const etf6=html.slice(html.indexOf('id="etf-6"'));
  assert.ok(etf6.indexOf('class="price-panel"')>etf6.indexOf('class="series"'));
  assert.match(html,/row-change/);

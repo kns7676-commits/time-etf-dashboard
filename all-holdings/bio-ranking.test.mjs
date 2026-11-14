@@ -38,20 +38,22 @@ test('outside TOP10 is unknown in raw history graphs and cannot be represented a
 });
 test('rendered stock controls update selection, graph, legend and exact weights together',()=>{
  const s=fixture(),html=bioRanking([s],s),rows=normalizedRanking(s);
- function element(dataset={}){return {dataset,value:'0',style:{},attrs:{},events:{},classList:{toggle(){}},setAttribute(k,v){this.attrs[k]=v;},addEventListener(k,fn){this.events[k]=fn;},scrollIntoView(){this.scrolled=true;},closest(){return this;}};}
+ function element(dataset={}){return {dataset,value:'0',style:{},attrs:{},events:{},dispatched:[],viewBox:{baseVal:{width:1000}},classList:{toggle(){}},setAttribute(k,v){this.attrs[k]=v;},addEventListener(k,fn){this.events[k]=fn;},dispatchEvent(e){this.dispatched.push(e);},scrollIntoView(){this.scrolled=true;},closest(){return this;}};}
  const nodes=new Map(),get=selector=>{if(!nodes.has(selector))nodes.set(selector,element());return nodes.get(selector);};
- const buttons=rows.map((_,i)=>element({bioSelect:String(i)})),zooms=['out','in','fit'].map(bioZoom=>element({bioZoom}));
- const sent=[],document={dispatchEvent:e=>sent.push(e),getElementById:id=>get('#'+id),querySelector:get,querySelectorAll:selector=>selector==='[data-bio-select]'?buttons:selector==='[data-bio-zoom]'?zooms:[]};
+ const buttons=rows.map((_,i)=>element({bioSelect:String(i)}));
+ const document={getElementById:id=>get('#'+id),querySelector:get,querySelectorAll:selector=>selector==='[data-bio-select]'?buttons:[]};
  const script=html.match(/<script>([\s\S]*?)<\/script>/)[1];runInNewContext(script,{document,CustomEvent:class{constructor(type,init){this.type=type;this.detail=init.detail;}}});
  assert.ok(get('#bio-selected-name').textContent.includes(rows[0].name));
  assert.equal(get('[data-bio-prev]').disabled,true);
  const select=get('#bio-stock-select');select.value='1';select.events.change();
- assert.deepEqual([sent.at(-1).type,sent.at(-1).detail.code],['bio-stock-change',rows[1].code]);
+ // Choosing a stock restarts the shared flow (auto-scroll) from the first date.
+ assert.equal(get('.bio-stock-chart').dispatched.at(-1).type,'row-change');
  assert.ok(get('#bio-selected-name').textContent.includes(rows[1].name));assert.equal(buttons[1].attrs['aria-pressed'],'true');assert.equal(buttons[0].attrs['aria-pressed'],'false');
- assert.ok(get('#bio-weight-chart').innerHTML.includes('<circle'));assert.equal(get('#bio-weight-chart').attrs['aria-label'],rows[1].name+' ETF별 실제 비중 변화');
+ assert.ok(get('#bio-weight-chart').innerHTML.includes('<circle'));assert.equal(get('#bio-weight-chart').attrs['aria-label'],rows[1].name+' ETF별 실제 비중과 주가 변화');
  for(const p of s.products){assert.ok(get('.bio-etf-legend').innerHTML.includes(p.name));assert.ok(get('#bio-exact-weights').innerHTML.includes(p.name));}
+ assert.ok(get('.bio-etf-legend').innerHTML.includes('주가'));
  buttons[2].events.click();assert.equal(select.value,'2');assert.equal(get('.bio-history').scrolled,true);
- zooms[1].events.click();assert.equal(get('#bio-weight-chart').style.width,'140%');assert.equal(get('#bio-weight-chart').attrs.viewBox,'0 0 1400 450');
- zooms[2].events.click();assert.equal(get('#bio-weight-chart').style.width,'100%');
  get('[data-bio-first]').events.click();assert.equal(select.value,'0');
+ // The flow controls come from the shared AI-tab script, bound only to this chart.
+ assert.match(html,/<figure class="bio-stock-chart flow-chart">/);assert.ok(html.includes("document.querySelectorAll('figure.flow-chart')"));
 });
