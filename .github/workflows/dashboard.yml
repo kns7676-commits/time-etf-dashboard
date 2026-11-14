@@ -53,7 +53,7 @@ jobs:
         run: |
           git config user.name 'ETF dashboard bot'
           git config user.email 'etf-dashboard@users.noreply.github.com'
-          git add state/cumulative.json state/bio-comparison.json state/bio-comparison-history.json state/us-comparison.json state/us-comparison-history.json state/kospi-comparison.json state/kospi-comparison-history.json state/kosdaq-comparison.json state/kosdaq-comparison-history.json
+          git add state/cumulative.json state/bio-comparison.json state/bio-comparison-history.json state/us-comparison.json state/us-comparison-history.json state/kospi-comparison.json state/kospi-comparison-history.json state/kosdaq-comparison.json state/kosdaq-comparison-history.json state/period-holdings.json
           if ! git diff --cached --quiet; then
             git commit -m 'Update public ETF holdings history'
             git push

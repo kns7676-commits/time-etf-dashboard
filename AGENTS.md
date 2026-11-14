@@ -118,6 +118,13 @@ When the user requests Telegram delivery:
 - Return trend: every comparison tab shows FunETF cumulative NAV returns (`returns-chart.mjs`, `/api/public/compare/view/etfchart` with `compareCd_n` ISINs, `schSuikMode=T`, `schSuikPeriod=12`) under the comparison table; fetched at build time, failure only omits the section.
 - Tests: `node --test all-holdings/comparison-trends.test.mjs bio-holdings.test.mjs funetf-holdings.test.mjs all-holdings/returns-chart.test.mjs`. Verified deployment: [run 43553793396](https://github.com/kns7676-commits/time-etf-dashboard/actions/runs/43553793396) passed 104 tests, verified all four comparison universes, deployed and sent the Telegram link; public bio/us/kospi/kosdaq pages returned HTTP 200 with five tabs and 100.00% normalized totals.
 
+### Period TOP10 Comparison (기간별 TOP10)
+
+- Every comparison tab shows `ETF별 구성종목 TOP10 기간 비교` after `선택 종목 · ETF별 날짜별 비중 변화` (`all-holdings/period-holdings.mjs`): ETF buttons, period buttons 1개월 전 / 3개월 전 / 6개월 전 / 상장일, left = current TOP10 with change (current − past, %p, `신규` if not held then), right = past TOP10 (`현재 미보유` tag). Cash rows are excluded; securities match by ISIN (`grpItmNo`).
+- Both sides use FunETF dated PDF (`etfpdf`, weight `evP`) so the change column compares the same source; FunETF weights differ slightly from official lists. Verified 2026-11-14: FunETF 2026-10-13 KoAct 0174B0 weights match official KoAct history within cash scaling.
+- Listing date: single-ISIN `etfchart` with `schSuikPeriod=120` starts in the listing week; the first day with ≥5 weighted rows near it is the listing (pre-listing days list only `설정현금액`). FunETF publishes no weights (evP null) for many active ETFs before 2023-12-13; those ETFs binary-search the first weighted date and label it `FunETF 비중 공개 시작`, never as the listing date. KODEX 바이오 has weights to FunETF's 10-year limit.
+- Cache: `state/period-holdings.json` (committed by the workflow); dated holdings are fetched once, unreferenced dates pruned. Pacing 1.5s; HTTP 429/5xx stops further requests; failures only omit that ETF/period with `::warning::`. Test: `node --test all-holdings/period-holdings.test.mjs`.
+
 ### TIME–KoAct Matching Analysis
 
 - Verified 2026-11-13 same-date official holdings for 18 TIME and 24 KoAct ETFs; results and source URLs are in `reports/analysis/time-koact-matching-20261113.md` and `.json`. Two other KoAct products (China bio and global K-culture) returned HTTP 429 and are unverified; do not claim an exhaustive 26-product holdings comparison. Respect rate limits and reuse dated snapshots.

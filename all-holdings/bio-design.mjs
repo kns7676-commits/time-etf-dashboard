@@ -26,7 +26,7 @@ main{padding-top:24px!important;padding-bottom:32px!important}.bio-page-header{p
 export function applyBioDesign(html,{universe='bio'}={}){
  const config=comparisonConfig(universe);
  const title='<h1>전체 종목의 날짜별 비중 변화</h1>';
- if(!html.includes('class="bio-page-header"'))html=html.replace(title,'<header class="bio-page-header"><div class="bio-page-eyebrow">'+config.eyebrow+'</div>'+title+'<p>'+config.label+' ETF '+config.count+'종의 구성종목과 보정 비중, 날짜별 변화를 비교하세요.</p><nav class="bio-page-nav" aria-label="'+config.label+' 화면 바로가기"><a href="#bio-comparison-title">구성종목 비교</a><a href="#bio-ranking-title">보정 비중 순위</a><a href="#bio-history-title">종목별 비중 변화</a></nav></header>');
+ if(!html.includes('class="bio-page-header"'))html=html.replace(title,'<header class="bio-page-header"><div class="bio-page-eyebrow">'+config.eyebrow+'</div>'+title+'<p>'+config.label+' ETF '+config.count+'종의 구성종목과 보정 비중, 날짜별 변화를 비교하세요.</p><nav class="bio-page-nav" aria-label="'+config.label+' 화면 바로가기"><a href="#bio-comparison-title">구성종목 비교</a><a href="#bio-ranking-title">보정 비중 순위</a><a href="#bio-history-title">종목별 비중 변화</a>'+(html.includes('id="bio-periods-title"')?'<a href="#bio-periods-title">기간별 TOP10</a>':'')+'</nav></header>');
  html=html.replace(/<style id="bio-design">[\s\S]*?<\/style>/,'');
  const universeStyle=universe==='us'?'[data-universe="us"] .bio-comparison table{min-width:1450px!important}[data-universe="us"] .bio-comparison thead th[colspan="2"]:not(:first-child){width:auto}[data-universe="us"] .bio-rank-table{min-width:1400px}':'';
  return html.replace('</html>','<style id="bio-design">'+css+compactCss+universeStyle+'</style></html>');

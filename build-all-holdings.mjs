@@ -10,6 +10,7 @@ import {monitoringDates} from './all-holdings/comparison-trends.mjs';
 import {priceKey} from './all-holdings/bio-ranking.mjs';
 import {fetchReturns} from './all-holdings/returns-chart.mjs';
 import {request} from './request.mjs';
+import {updatePeriodHoldings} from './all-holdings/period-holdings.mjs';
 const history=JSON.parse(await readFile('state/cumulative.json','utf8'));
 const comparisons={};
 for(const universe of COMPARISON_THEMES)comparisons[universe]={snapshot:verifyPublication(JSON.parse(await readFile('state/'+universe+'-comparison.json','utf8'))),history:JSON.parse(await readFile('state/'+universe+'-comparison-history.json','utf8'))};
@@ -30,12 +31,18 @@ if(extra.size){const from=history.map(d=>d.sentDate).sort()[0];Object.assign(pri
 // FunETF cumulative return series, shown under the comparison table. A failure only omits the section.
 const RETURN_THEMES=COMPARISON_THEMES,returns={};
 for(const universe of RETURN_THEMES){try{returns[universe]=await fetchReturns(request,universe);}catch(e){console.warn('::warning::Return chart skipped for '+universe+': '+e.message);}}
+// ETF별 구성종목 TOP10 기간 비교 (FunETF dated holdings, cached). A failure only omits the affected ETF or period.
+let periods=null;
+try{let cache={};try{cache=JSON.parse(await readFile('state/period-holdings.json','utf8'));}catch(e){if(e.code!=='ENOENT')throw e;}
+ periods=await updatePeriodHoldings(request,cache,{universes:COMPARISON_THEMES,latest:Object.fromEntries(COMPARISON_THEMES.map(u=>[u,comparisons[u].snapshot.date]))});
+ await writeFile('state/period-holdings.json',JSON.stringify(periods)+'\n');
+}catch(e){console.warn('::warning::Period holdings skipped: '+e.message);}
 const scoped=themeHistory(history,'ai');
 if(!scoped.length)throw Error('No holdings for theme: ai');
 const aiPage=groupedWeightReport(scoped,{prices}).html;
 for(const theme of ['all','ai',...COMPARISON_THEMES]){
  const isComparison=COMPARISON_THEMES.includes(theme),snapshot=comparisons[isComparison?theme:'bio'].snapshot;
- let html=isComparison?bioThemePage(snapshot,comparisons[theme].history,{holdingsHistory:history,prices,returns:returns[theme]??null}):aiPage;
+ let html=isComparison?bioThemePage(snapshot,comparisons[theme].history,{holdingsHistory:history,prices,returns:returns[theme]??null,periods}):aiPage;
  if(!isComparison)html=insertSox(html,data);
  html=addThemeTabs(html,theme,isComparison?{}:scoped.at(-1).products,snapshot.checkedAt);
  const path='output/site/all-holdings'+(theme==='all'?'':'/'+theme);
