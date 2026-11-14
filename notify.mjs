@@ -9,7 +9,11 @@ export async function sendDashboardLink({token, chatId, url, fetcher=fetch}) {
     body:JSON.stringify({chat_id:chatId, text:parsed.href, link_preview_options:{is_disabled:true}})
   });
   const data = await response.json();
-  if (!response.ok || !data.ok) throw new Error('Telegram link delivery failed');
+  if (!response.ok || !data.ok) {
+    const code = Number(data.error_code || response.status) || 0;
+    const hint = code === 401 || code === 404 ? 'Check bot token' : code === 400 ? 'Check chat ID and message parameters' : code === 403 ? 'Bot access to chat denied' : 'Telegram request rejected';
+    throw new Error('Telegram link delivery failed: code ' + code + ' (' + hint + ')');
+  }
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
