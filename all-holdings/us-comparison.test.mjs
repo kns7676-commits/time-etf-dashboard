@@ -42,7 +42,7 @@ test('US tab reuses the BIO design, stock controls and return links with five-pr
  assert.ok(page.includes('href="#bio-comparison-title"'));assert.ok(page.includes('href="#bio-ranking-title"'));
  assert.ok(!page.includes('id="sox-card"'));assert.ok(!page.includes('바이오 ETF 4종'));
  const tabs=page.match(/<nav class="theme-tabs"[\s\S]*?<\/nav>/)[0];
- assert.equal((tabs.match(/<a /g)||[]).length,3);assert.ok(tabs.includes('../us/?v='));assert.ok(tabs.includes('aria-current="page">미국대표 ETF'));
+ assert.equal((tabs.match(/<a /g)||[]).length,5);assert.ok(tabs.includes('../us/?v='));assert.ok(tabs.includes('aria-current="page">미국대표 ETF'));
  for(const script of page.matchAll(/<script>([\s\S]*?)<\/script>/g))new Function(script[1]);
  const rendered=bioRanking([s],s);assert.ok(rendered.includes("'#dc2626'"));
 });

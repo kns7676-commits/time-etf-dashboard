@@ -7,7 +7,7 @@
                 },
     "scripts":  {
                     "test":  "node run-tests.mjs",
-                    "refresh":  "node refresh.mjs",
+                    "refresh":  "node --use-system-ca refresh.mjs",
                     "build":  "node build-dashboard.mjs \u0026\u0026 node build-all-holdings.mjs",
                     "send":  "node notify.mjs",
                     "report:original":  "node run-report.mjs original",

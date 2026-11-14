@@ -15,6 +15,7 @@ html{scroll-padding-top:24px}body{background:#fff!important;color:var(--bio-ink)
 .bio-ranking-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}.bio-ranking-heading h2{margin:0}.bio-history-links{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.bio-history-links .bio-ranking-jump{line-height:1.5}#bio-comparison-title{scroll-margin-top:24px}@media(prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
 `;
 const compactCss=`
+.bio-data-coverage{display:flex;flex-wrap:wrap;gap:6px 16px;padding:10px 12px;border:1px solid #e0e6ef;border-radius:6px;background:#f8fafd;color:#63768e;font-size:11px;line-height:1.65;margin:12px 0}.bio-data-coverage span{flex:1 1 240px}
 /* Compact table density: preserve labels and type size while removing empty space. */
 main{padding-top:24px!important;padding-bottom:32px!important}.bio-page-header{padding-bottom:18px}.bio-page-header h1{margin:8px 0 6px;font-size:27px}.bio-page-nav{margin-top:16px}.bio-page-nav a{padding:7px 15px}
 .bio-comparison,.bio-ranking,.bio-history{margin-top:24px!important}.bio-ranking,.bio-history{padding-top:24px!important}.bio-comparison-head{margin-bottom:10px}.bio-comparison-head h2{margin:3px 0 5px}.bio-guide{margin:8px 0;font-size:12px!important;line-height:1.65}.bio-comparison thead th{height:88px;padding:14px 12px!important}.bio-comparison thead a{margin-top:6px!important;font-size:15px}
