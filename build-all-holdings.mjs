@@ -28,7 +28,7 @@ for(const universe of COMPARISON_THEMES){
 }
 if(extra.size){const from=history.map(d=>d.sentDate).sort()[0];Object.assign(prices,await fetchProductPrices([{sentDate:from,products:{comparison:{date:from,rows:[...extra.values()].map(code=>({code}))}}}],['comparison']));}
 // FunETF cumulative return series, shown under the comparison table. A failure only omits the section.
-const RETURN_THEMES=['us'],returns={};
+const RETURN_THEMES=COMPARISON_THEMES,returns={};
 for(const universe of RETURN_THEMES){try{returns[universe]=await fetchReturns(request,universe);}catch(e){console.warn('::warning::Return chart skipped for '+universe+': '+e.message);}}
 const scoped=themeHistory(history,'ai');
 if(!scoped.length)throw Error('No holdings for theme: ai');
