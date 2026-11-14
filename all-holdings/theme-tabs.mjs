@@ -1,3 +1,4 @@
+import {productWeightCharts} from './grouped-weight-report.mjs';
 import {comparisonTable} from './bio-comparison.mjs';
 import {bioRanking} from './bio-ranking.mjs';
 import {applyBioDesign} from './bio-design.mjs';
@@ -8,9 +9,13 @@ export function themeHistory(history,theme){
  const isBio=p=>p.theme==='bio'||/바이오|헬스케어/i.test(p.name);
  return history.map(day=>({...day,products:Object.fromEntries(Object.entries(day.products).filter(([,p])=>theme==='bio'?isBio(p):!isBio(p)))})).filter(day=>Object.keys(day.products).length);
 }
+function etfCharts(config,holdingsHistory){
+ const has=p=>p.historyId&&holdingsHistory.some(d=>d.products?.[p.historyId]);
+ return productWeightCharts(holdingsHistory,config.products.filter(has).map(p=>p.historyId),{missing:config.products.filter(p=>!has(p)).map(p=>p.name)});
+}
 export function bioThemePage(comparison,history=[comparison],{holdingsHistory=[]}={}){
  const config=comparisonConfig(comparison.universe);
- return applyBioDesign('<!doctype html><html lang="ko" data-universe="'+config.universe+'"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="bio-comparison-checked" content="'+esc(comparison.checkedAt)+'"><title>'+config.label+' · ETF 보유종목</title><style>body{background:#f4f7fb;color:#20314a;font:15px/1.6 system-ui,\'Malgun Gothic\',sans-serif;margin:0}main{max-width:1150px;margin:auto;padding:24px}@media(max-width:600px){main{padding:12px}}</style><main><h1>전체 종목의 날짜별 비중 변화</h1>'+comparisonTable(comparison)+bioRanking(history,comparison,{holdingsHistory})+'</main></html>',{universe:config.universe});
+ return applyBioDesign('<!doctype html><html lang="ko" data-universe="'+config.universe+'"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="bio-comparison-checked" content="'+esc(comparison.checkedAt)+'"><title>'+config.label+' · ETF 보유종목</title><style>body{background:#f4f7fb;color:#20314a;font:15px/1.6 system-ui,\'Malgun Gothic\',sans-serif;margin:0}main{max-width:1150px;margin:auto;padding:24px}@media(max-width:600px){main{padding:12px}}</style><main><h1>전체 종목의 날짜별 비중 변화</h1>'+comparisonTable(comparison)+bioRanking(history,comparison,{holdingsHistory})+etfCharts(config,holdingsHistory)+'</main></html>',{universe:config.universe});
 }
 export const COMPARISON_THEMES=['bio','us','kospi','kosdaq'];
 export function addThemeTabs(html,theme,products,version=''){
