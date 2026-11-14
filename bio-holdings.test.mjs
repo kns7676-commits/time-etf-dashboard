@@ -51,18 +51,30 @@ test('KoAct 5xx errors also stop the date walk-back',async()=>{
  await fetchKoactHoldings(async url=>{calls.push(url);throw Error('HTTP 503');},'2026-11-14',{products:KOACT_PRODUCTS.slice(0,1),onFailure:()=>{},pause:async()=>{}});
  assert.equal(calls.length,1);
 });
-test('backfill adds KoAct holdings on the TIME source date of each day, resumes after a rate limit and never invents data',async()=>{
+test('backfill goes newest first on TIME source dates, waits out rate limits, stops products before listing and never invents data',async()=>{
  const time=date=>({name:'TIME 미국나스닥100액티브',date,rows:[]});
- const history=[{sentDate:'2026-11-12',products:{'2':time('2026-11-11')}},{sentDate:'2026-11-13',products:{'2':time('2026-11-12')}},{sentDate:'2026-11-14',products:{'2':time('2026-11-13')}}];
- const products=KOACT_PRODUCTS.slice(0,2),asked=[];let limit=true;
- const fetch=async(_,date,{products:want,onFailure})=>{asked.push(date+':'+want.map(p=>p.code).join('+'));const out={};for(const p of want){if(date==='2026-11-12'&&limit){onFailure(p,Error('HTTP 429'));continue;}if(date==='2026-11-11'&&p.code==='0186L0'){onFailure(p,Error('HTTP 404'));continue;}out[p.code]={name:p.name,date,rows:[{code:'MU US Equity',name:'MICRON',weight:100}],theme:'koact'};}return out;};
- let saves=0;const first=await backfill(history,{fetch,products,save:async()=>{saves++;},log:()=>{}});
- assert.deepEqual(first,{added:1,stopped:true});
- assert.ok(history[0].products['0174B0']);assert.ok(!history[0].products['0186L0']);assert.ok(!history[1].products['0174B0']);
- assert.equal(saves,2);
- limit=false;const second=await backfill(history,{fetch,products,save:async()=>{},log:()=>{}});
- assert.equal(second.stopped,false);assert.equal(second.added,4);
- assert.equal(history[2].products['0174B0'].date,'2026-11-13');
- assert.ok(!history[0].products['0186L0']);
- assert.deepEqual(backfillTargets(history,products).map(t=>t.sentDate),['2026-11-12']);
+ const dates=['2026-11-10','2026-11-11','2026-11-12','2026-11-13'];
+ const history=dates.map((d,i)=>({sentDate:'2026-11-'+(11+i),products:{'2':time(d)}}));
+ const products=KOACT_PRODUCTS.slice(0,2),asked=[],waits=[];let limited=1;
+ // 0186L0 has no data before 2026-11-12 (listed then); 2026-11-12 is rate limited once.
+ const fetch=async(_,date,{products:want,onFailure})=>{const out={};for(const p of want){asked.push(date+':'+p.code);if(date==='2026-11-12'&&limited){limited--;onFailure(p,Error('HTTP 429'));continue;}if(p.code==='0186L0'&&date<'2026-11-12'){onFailure(p,Error('HTTP 404'));continue;}out[p.code]={name:p.name,date,rows:[{code:'MU US Equity',name:'MICRON',weight:100}],theme:'koact'};}return out;};
+ let saves=0;
+ const result=await backfill(history,{fetch,products,save:async()=>{saves++;},log:()=>{},pause:async ms=>{waits.push(ms);},gap:1,cooldown:99});
+ assert.deepEqual(result,{added:6,stopped:false});
+ assert.equal(asked[0],'2026-11-13:0174B0');
+ assert.ok(waits.includes(99));
+ assert.ok(!asked.includes('2026-11-10:0186L0')||asked.filter(a=>a.endsWith('0186L0')&&a<'2026-11-12').length===2);
+ assert.equal(asked.filter(a=>a.endsWith(':0186L0')&&a.startsWith('2026-11-1')&&a<'2026-11-12').length,2);
+ assert.ok(!history[0].products['0186L0']&&!history[1].products['0186L0']);
+ assert.equal(history[3].products['0174B0'].date,'2026-11-13');
+ assert.deepEqual(backfillTargets(history,products).map(t=>t.sentDate),['2026-11-11','2026-11-12']);
+});
+test('backfill saves progress and stops after the allowed number of rate-limit cooldowns',async()=>{
+ const time=date=>({name:'TIME 미국나스닥100액티브',date,rows:[]});
+ const history=[{sentDate:'2026-11-13',products:{'2':time('2026-11-12')}},{sentDate:'2026-11-14',products:{'2':time('2026-11-13')}}];
+ const products=KOACT_PRODUCTS.slice(0,1);
+ const fetch=async(_,date,{products:want,onFailure})=>{const out={};for(const p of want){if(date==='2026-11-12'){onFailure(p,Error('HTTP 429'));continue;}out[p.code]={name:p.name,date,rows:[],theme:'koact'};}return out;};
+ let saves=0;const result=await backfill(history,{fetch,products,save:async()=>{saves++;},log:()=>{},pause:async()=>{},maxCooldowns:2});
+ assert.deepEqual(result,{added:1,stopped:true});assert.equal(saves,1);
+ assert.ok(history[1].products['0174B0']&&!history[0].products['0174B0']);
 });

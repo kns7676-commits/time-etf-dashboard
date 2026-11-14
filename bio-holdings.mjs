@@ -81,12 +81,13 @@ export async function fetchBioHoldings(request,date,{onFailure=(product,error)=>
 }
 // KoAct requests go one at a time with a pause; after a rate limit the remaining products are skipped, not retried.
 export async function fetchKoactHoldings(request,date,{products=KOACT_PRODUCTS,onFailure=(product,error)=>{throw error;},pause=()=>new Promise(r=>setTimeout(r,1500)),walkBack=7}={}){
- const collected={};let blocked=null;
- for(const [i,product] of products.entries()){
+ const collected={};let blocked=null,sent=0;
+ // Every request (including weekend walk-back requests) waits for the pause after the first one.
+ const paced=async(...args)=>{if(sent++)await pause();return request(...args);};
+ for(const product of products){
   if(blocked){onFailure(product,Error('Skipped after rate limit: '+blocked.message));continue;}
-  if(i)await pause();
   try{
-   const snapshot=await samsungSnapshot(request,'https://www.samsungactive.co.kr/api/v1/product/etf-pdf/'+product.id+'.do',date,walkBack);
+   const snapshot=await samsungSnapshot(paced,'https://www.samsungactive.co.kr/api/v1/product/etf-pdf/'+product.id+'.do',date,walkBack);
    if(Date.parse(date)-Date.parse(snapshot.date)>7*86400000)throw Error('Stale KoAct holdings');
    const {id,...meta}=product;collected[product.code]={...meta,...snapshot};
   }catch(e){if(rateLimited(e))blocked=e;onFailure(product,e);}
