@@ -51,6 +51,7 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
       - name: Send published dashboard link
+        if: github.event_name == 'workflow_dispatch'
         run: node notify.mjs
         env:
           DASHBOARD_URL: ${{ steps.deployment.outputs.page_url }}all-holdings/
