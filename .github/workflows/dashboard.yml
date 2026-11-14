@@ -49,6 +49,8 @@ jobs:
       - run: node build-dashboard.mjs
       - name: Build latest all-holdings dashboard
         run: node build-all-holdings.mjs
+      - name: Build protected standalone bio page
+        run: node build-bio-protected.mjs output/site/bio-share
       - name: Save public holdings history
         run: |
           git config user.name 'ETF dashboard bot'
