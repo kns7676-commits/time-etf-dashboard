@@ -1,7 +1,7 @@
 name: Update ETF dashboard and send Telegram link
 on:
   schedule:
-    - cron: '0 21 * * *'
+    - cron: '37 20 * * *'  # 05:37 Asia/Seoul; off the hour to reduce GitHub schedule delays
   workflow_dispatch:
     inputs:
       refresh:
