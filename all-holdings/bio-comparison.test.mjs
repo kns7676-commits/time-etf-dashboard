@@ -2,7 +2,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {COMPARISON_PRODUCTS,parseComparison,validateComparison,verifyPublication,comparisonTable} from './bio-comparison.mjs';
 import {bioThemePage,addThemeTabs,themeHistory} from './theme-tabs.mjs';
-import {insertSox} from './sox-card.mjs';
 import {readFileSync} from 'node:fs';
 const checkedAt='2026-11-14T00:00:00.000Z';
 function fixture(){
@@ -35,16 +34,22 @@ test('publication requires a check today and rejects old or future source dates'
  assert.throws(()=>validateComparison({...s,date:'2026-11-01'}),/stale/);
  assert.throws(()=>validateComparison({...s,date:'2026-11-15'}),/future/);
 });
-test('bio comparison preserves AI content and renders an escaped, dated table after two tabs and shared SOX',()=>{
+test('bio tab preserves the complete designed sharing content and navigation without SOX',()=>{
  const s=parseComparison(fixture(),checkedAt);s.products[0].rows[0].name='<script>bad</script>';
  const table=comparisonTable(s);assert.ok(table.includes('&lt;script&gt;'));assert.ok(!table.includes('<script>bad'));
  assert.equal((table.match(/class="bio-stock"/g)||[]).length,40);
  assert.equal((table.match(/>100\.00<\/td>/g)||[]).length,4);
- const point={t:1794531600,v:100},sox={price:101,previous:100,time:point.t,day:[point],week:[point],history:[point]};
- const page=addThemeTabs(insertSox(bioThemePage(s),sox),'bio',{},s.checkedAt);
- assert.ok(page.indexOf('id="sox-card"')<page.indexOf('<nav class="theme-tabs"'));
+ const standalone=bioThemePage(s),page=addThemeTabs(standalone,'bio',{},s.checkedAt);
+ assert.ok(!page.includes('id="sox-card"'));
+ assert.ok(page.includes('<main><nav class="theme-tabs"'));
  assert.ok(page.indexOf('<nav class="theme-tabs"')<page.indexOf('class="bio-comparison"'));
  assert.ok(page.includes('data-source-date="2026-11-13"'));
  assert.ok(page.includes('../bio/?v='+encodeURIComponent(s.checkedAt)));
+ const main=html=>html.slice(html.indexOf('<main>'),html.indexOf('</main>')+7);
+ assert.equal(main(page).replace(/<nav class="theme-tabs"[\s\S]*?<\/nav>/,''),main(standalone));
+ for(const id of ['bio-comparison-title','bio-ranking-title','bio-history-title'])assert.ok(page.includes('id="'+id+'"'));
+ assert.ok(page.includes('class="bio-history-links"'));
+ assert.ok(page.includes('class="bio-ranking-heading"'));
+ assert.ok(page.includes('font/woff2;base64,'));
  const h=[{products:{a:{name:'기존 ETF'},b:{name:'바이오 ETF'}}}];assert.deepEqual(Object.keys(themeHistory(h,'ai')[0].products),['a']);
 });
