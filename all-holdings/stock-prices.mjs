@@ -33,15 +33,18 @@ export async function fetchStockPrice(code,from,fetcher=fetch,sleep=ms=>new Prom
  return {symbol:symbols[0],error:true};
 }
 // 상품별로 기간 내 등장한 모든 종목(편출 포함)의 주가를 받습니다. 개별 실패는 상황판 발행을 막지 않습니다.
+// A security held by several ETFs is fetched once (from the earliest requested date) and shared.
 export async function fetchProductPrices(history,products=PRICE_PRODUCTS,fetcher=fetch,sleep){
- const out={};
+ const out={},wanted=new Map();
  for(const product of products){
   const days=history.filter(s=>s.products[product]);if(!days.length)continue;
-  const from=days.map(s=>s.products[product].date).sort()[0],codes=[...new Set(days.flatMap(s=>s.products[product].rows.map(r=>r.code)))];
-  const prices={};let next=0;
-  await Promise.all(Array.from({length:4},async()=>{while(next<codes.length){const code=codes[next++];prices[code]=await fetchStockPrice(code,from,fetcher,sleep);}}));
-  out[product]=prices;
+  out[product]=[...new Set(days.flatMap(s=>s.products[product].rows.map(r=>r.code)))];
+  const from=days.map(s=>s.products[product].date).sort()[0];
+  for(const code of out[product])if(!wanted.has(code)||from<wanted.get(code))wanted.set(code,from);
  }
+ const codes=[...wanted.keys()],cache={};let next=0;
+ await Promise.all(Array.from({length:4},async()=>{while(next<codes.length){const code=codes[next++];cache[code]=await fetchStockPrice(code,wanted.get(code),fetcher,sleep);}}));
+ for(const product of Object.keys(out))out[product]=Object.fromEntries(out[product].map(code=>[code,cache[code]]));
  return out;
 }
 // 비중 조정(▲▼＋×) 시점의 종가와 이후 주가 흐름. 자료일 당일 또는 직전 거래일 종가를 기준으로 합니다.

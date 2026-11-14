@@ -24,6 +24,14 @@ test('Korean codes fall back to KOSDAQ and failures never throw',async()=>{
  assert.deepEqual(await fetchStockPrice('NQZ6 INDEX','2026-09-08',async()=>assert.fail()),{skip:true});
  assert.deepEqual(await fetchStockPrice('INTC US EQUITY','2026-09-08',async()=>({ok:false,status:429}),async()=>{}),{symbol:'INTC',error:true});
 });
+test('a security held by several ETFs is fetched once from the earliest date and shared',async()=>{
+ const day=(sentDate,date)=>({sentDate,products:{'11':{name:'A',date,rows:[{code:'005930',name:'삼성전자',weight:20}]},'15':{name:'B',date,rows:[{code:'005930',name:'삼성전자',weight:15},{code:'000660',name:'SK하이닉스',weight:10}]}}});
+ const urls=[];
+ const prices=await fetchProductPrices([day('2026-09-09','2026-09-08'),day('2026-09-10','2026-09-09')],['11','15'],async url=>{urls.push(url);return {ok:true,status:200,json:async()=>chart([10,11,12])};});
+ assert.equal(urls.filter(u=>u.includes('005930')).length,1);
+ assert.equal(prices['11']['005930'],prices['15']['005930']);
+ assert.deepEqual(Object.keys(prices['15']).sort(),['000660','005930']);
+});
 test('price panel appears only for the configured ETF, after the weight chart',async()=>{
  const snapshot=(sentDate,code,rows)=>({sentDate,products:{[code]:{name:'ETF '+code,date:sentDate,rows}}});
  const rows=[{code:'INTC US EQUITY',name:'Intel Corp',weight:5},{code:'현금',name:'현금',weight:1}];
