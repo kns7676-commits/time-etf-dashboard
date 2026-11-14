@@ -8,7 +8,7 @@ import {verifyPublication} from './all-holdings/bio-comparison.mjs';
 import {comparisonConfig} from './all-holdings/comparison-config.mjs';
 import {monitoringDates} from './all-holdings/comparison-trends.mjs';
 import {priceKey} from './all-holdings/bio-ranking.mjs';
-import {fetchReturns} from './all-holdings/returns-chart.mjs';
+import {fetchReturns,fetchLongReturns} from './all-holdings/returns-chart.mjs';
 import {request} from './request.mjs';
 import {updatePeriodHoldings} from './all-holdings/period-holdings.mjs';
 const history=JSON.parse(await readFile('state/cumulative.json','utf8'));
@@ -30,7 +30,9 @@ for(const universe of COMPARISON_THEMES){
 if(extra.size){const from=history.map(d=>d.sentDate).sort()[0];Object.assign(prices,await fetchProductPrices([{sentDate:from,products:{comparison:{date:from,rows:[...extra.values()].map(code=>({code}))}}}],['comparison']));}
 // FunETF cumulative return series, shown under the comparison table. A failure only omits the section.
 const RETURN_THEMES=COMPARISON_THEMES,returns={};
-for(const universe of RETURN_THEMES){try{returns[universe]=await fetchReturns(request,universe);}catch(e){console.warn('::warning::Return chart skipped for '+universe+': '+e.message);}}
+// Per-ETF 10-year weekly + 1-year daily series for the 1/3/5/10-year and date-range selector; the older 12-month
+// combined series is the fallback.
+for(const universe of RETURN_THEMES){try{returns[universe]=await fetchLongReturns(request,universe);}catch(e){console.warn('::warning::Long return series failed for '+universe+': '+e.message);try{returns[universe]=await fetchReturns(request,universe);}catch(e2){console.warn('::warning::Return chart skipped for '+universe+': '+e2.message);}}}
 // ETF별 구성종목 TOP10 기간 비교 (FunETF dated holdings, cached). A failure only omits the affected ETF or period.
 let periods=null;
 try{let cache={};try{cache=JSON.parse(await readFile('state/period-holdings.json','utf8'));}catch(e){if(e.code!=='ENOENT')throw e;}
