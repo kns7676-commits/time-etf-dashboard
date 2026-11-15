@@ -33,20 +33,22 @@ export function holdingChanges(prev,cur,{threshold=CHANGE_THRESHOLD,monthly=fals
 }
 const domesticKey=code=>{const k=securityKey(code);return k&&!k.startsWith('KR:')?k:k;};
 // Build the browser model. windowDays limits embedded history so the page stays small as history grows.
-export function buildStockModel(overseas,history,{etfs=OVERSEAS_ETFS,windowDays=100,observations=null}={}){
+export function buildStockModel(overseas,history,{etfs=OVERSEAS_ETFS,windowDays=100,monthlyDays=400,observations=null}={}){
  const list=[],series=new Map(),changes=new Map(),names=overseas?.names||{};
  const add=(map,key,v)=>{let a=map.get(key);if(!a)map.set(key,a=[]);a.push(v);};
  const all=etfs.filter(e=>Object.keys(overseas?.etfs?.[e.id]?.snapshots||{}).length);
  const latestDate=[...all.flatMap(e=>Object.keys(overseas.etfs[e.id].snapshots)),...history.map(d=>Object.values(d.products).map(p=>p.date)).flat()].sort().at(-1);
  if(!latestDate)return null;
  const from=new Date(Date.parse(latestDate)-windowDays*86400000).toISOString().slice(0,10);
+ // Month-end/quarter-end ETFs (Vanguard, with SEC N-PORT quarters) are sparse, so they keep their whole retained history.
+ const sparseFrom=new Date(Date.parse(latestDate)-monthlyDays*86400000).toISOString().slice(0,10);
  const dateSet=new Set(),overseasKeys=new Set();
  for(const etf of all){
   const snaps=overseas.etfs[etf.id].snapshots,dates=Object.keys(snaps).sort(),idx=list.length;
-  const shown=dates.filter(d=>d>=from||etf.type==='monthly'&&d===dates.at(-1));
+  const start=etf.type==='monthly'?sparseFrom:from,shown=dates.filter(d=>d>=start);
   list.push({id:etf.id,name:etf.name,issuer:etf.issuer,type:etf.type,page:etf.page,asOf:dates.at(-1),first:dates[0],days:dates.length});
   for(const d of shown){dateSet.add(d);snaps[d].rows.forEach((r,rank)=>{overseasKeys.add(r[0]);add(series,r[0]+'|'+idx,[d,r[2],rank+1,0,r[1]]);});}
-  for(let i=1;i<dates.length;i++){if(dates[i]<from)continue;
+  for(let i=1;i<dates.length;i++){if(dates[i]<start)continue;
    const gap=etf.type!=='monthly'&&dayGap(dates[i-1],dates[i])>5;
    for(const ch of holdingChanges(snaps[dates[i-1]],snaps[dates[i]],{monthly:etf.type==='monthly'}))add(changes,ch.key,[dates[i],idx,KINDS.indexOf(ch.kind),ch.adj===null?null:r4(ch.adj),ch.wPrev,ch.wNow,ch.method==='1좌당'?1:0,gap||etf.type==='monthly'?dates[i-1]:null,ch.sPrev??null,ch.sNow??null]);
   }
@@ -102,7 +104,7 @@ export function priceCode(key){
 // Browser code is passed as a real function (Function#toString) so no escaping happens inside a template literal.
 function client(M,P){
  var COLORS=['#2563eb','#dc2626','#059669','#d97706','#7c3aed','#db2777','#0891b2','#65a30d','#ea580c','#4f46e5','#0d9488','#be123c','#a16207','#9333ea','#0369a1','#15803d','#b45309','#e11d48','#475569','#6d28d9'];
- var TYPE={index:'지수형',active:'액티브',monthly:'월간(월말 기준)',domestic:'국내 (비중만)'};
+ var TYPE={index:'지수형',active:'액티브',monthly:'월간·분기(월말 기준)',domestic:'국내 (비중만)'};
  var $=function(id){return document.getElementById(id);};
  var nm=function(e){return e.type==='domestic'?e.name:e.id;};
  var sh=function(v){return v===null||v===undefined?'–':Math.round(v).toLocaleString('en-US')+'주';};
@@ -226,7 +228,7 @@ export function stockTrendsPage(model,{prices={},version=''}={}){
   '<li><b>조정 보유량 변화</b>는 추정치입니다. ETF 자금 유입·유출(설정·환매)로 모든 종목 수량이 함께 늘거나 주는 효과를 빼고 계산합니다. iShares는 ETF 1좌당 보유 주식 수, 나머지는 두 날짜에 공통으로 보유한 종목들의 수량 비율 중앙값으로 보정합니다. ±0.5%를 넘을 때만 증가·감소로 표시합니다.</li>'+
   '<li><b>지수형</b> ETF의 변화는 대부분 지수 변경·리밸런싱, <b>액티브</b> ETF는 운용 판단일 가능성이 큽니다. 실제 거래 내역은 아닙니다.</li>'+
   '<li><b>보유 주식 수</b>는 각 운용사가 공개한 보유종목 파일의 수량 그대로입니다(해당 기준일, 출처 링크 참고). 수량이 늘어도 ETF 자금 유입 때문일 수 있으니 조정 보유량 변화와 함께 보세요.</li><li><b>국내</b> ETF는 비중만 있어 매수·매도를 판단하지 않고 0.5%p 이상 비중 변화만 표시합니다. 비중은 주가만 움직여도 바뀝니다.</li>'+
-  '<li><b>월간</b>(Vanguard)은 월말 기준 공개 자료로 직전 공개 대비 변화입니다. 같은 종목이라도 ADR과 현지 주식(예: TSM과 2330)은 따로 셉니다.</li>'+
+  '<li><b>월간</b>(Vanguard VGT·VUG)은 월말 기준 공개 자료로 직전 공개 대비 변화입니다. 그 이전 기록은 미국 SEC에 제출된 분기 보유종목 공시(N-PORT, 분기말 기준)이며, 주식 수는 ETF가 아닌 펀드 전체 기준입니다. 그래프의 가로축은 기록이 있는 날짜만 이어 그리므로 분기 사이 간격은 실제보다 좁게 보입니다. 같은 종목이라도 ADR과 현지 주식(예: TSM과 2330)은 따로 셉니다.</li>'+
   '<li>해외 ETF 기록은 Global X(BOTZ·AIQ)만 공식 과거 파일로 '+esc(model.etfs.filter(e=>e.issuer==='Global X').map(e=>e.first).sort()[0]||'-')+' 이후를 채웠고, 나머지는 수집을 시작한 날부터 쌓입니다. 기준일은 미국 장 마감 기준입니다.</li>'+
   (model.third?'<li><b>ARK 제3자 기록</b>: 공식 수집 이전 ARK 5종의 '+esc(model.third.from)+'~'+esc(model.third.to)+' 값은 <a href="https://market-breadth-monitor.vercel.app/etf" target="_blank" rel="noopener">시장 폭 모니터</a>의 변화 기록입니다. 공식 ARK 파일과 겹치는 '+model.third.matched+'건이 모두 일치함을 확인했습니다. 수량이 바뀐 날만 기록되어 있어 빈 날은 비워 두며, 그래프에서는 속이 빈 점으로 표시합니다.</li>':'')+
   '<li>출처(운용사 공식 페이지): '+sources+'</li></ul></section>'+
