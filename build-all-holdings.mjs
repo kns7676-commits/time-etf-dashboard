@@ -1,7 +1,9 @@
 ﻿import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import {groupedWeightReport} from './all-holdings/grouped-weight-report.mjs';
 import {fetchSox,insertSox} from './all-holdings/sox-card.mjs';
-import {fetchProductPrices} from './all-holdings/stock-prices.mjs';
+import {fetchProductPrices,fetchStockPrice} from './all-holdings/stock-prices.mjs';
+import {buildStockModel,stockTrendsPage,priceCandidates,priceCode} from './all-holdings/stock-trends.mjs';
+import {securityKey} from './overseas-holdings.mjs';
 import {addThemeTabs,themeHistory,bioThemePage,COMPARISON_THEMES} from './all-holdings/theme-tabs.mjs';
 import {verifyPublication} from './all-holdings/bio-comparison.mjs';
 import {comparisonConfig} from './all-holdings/comparison-config.mjs';
@@ -50,6 +52,23 @@ for(const theme of ['all','ai',...COMPARISON_THEMES]){
  await mkdir(path,{recursive:true});
  await writeFile(path+'/index.html',html);
  console.log(isComparison?'Theme '+theme+': FunETF comparison through '+snapshot.date:'Theme '+theme+': '+Object.keys(scoped.at(-1).products).length+' ETFs through '+scoped.at(-1).sentDate);
+}
+// 종목별 ETF 추이 (overseas ETF holdings + domestic weights). Any failure only degrades this tab to a notice page.
+{
+ const path='output/site/all-holdings/stocks',version=comparisons.bio.snapshot.checkedAt;await mkdir(path,{recursive:true});
+ let html;
+ try{
+  let overseas=null;try{overseas=JSON.parse(await readFile('state/overseas-holdings.json','utf8'));}catch(e){if(e.code!=='ENOENT')throw e;}
+  const model=overseas&&buildStockModel(overseas,history),stockPrices={};
+  if(model){
+   for(const list of Object.values(prices))for(const [code,v] of Object.entries(list)){const k=securityKey(code);if(k&&v?.points&&model.stocks[k]&&!stockPrices[k])stockPrices[k]=v;}
+   const keys=priceCandidates(model).filter(k=>!stockPrices[k]&&priceCode(k));let next=0;
+   await Promise.all(Array.from({length:4},async()=>{while(next<keys.length){const k=keys[next++];stockPrices[k]=await fetchStockPrice(priceCode(k),model.from);}}));
+  }
+  html=stockTrendsPage(model,{prices:stockPrices,version});
+  console.log(model?`Theme stocks: ${Object.keys(model.stocks).length} stocks across ${model.etfs.length} ETFs through ${model.latest}, ${Object.values(stockPrices).filter(v=>v?.points).length} price lines`:'Theme stocks: no overseas holdings yet');
+ }catch(e){console.warn('::warning::Stock trends page degraded: '+e.message);html=stockTrendsPage(null,{version});}
+ await writeFile(path+'/index.html',html);
 }
 console.log('SOX '+data.price+' at '+new Date(data.time*1000).toISOString());
 for(const [code,list] of Object.entries(prices)){const v=Object.values(list);console.log(`Prices for product ${code}: ${v.filter(x=>x.points).length} charts, ${v.filter(x=>x.skip).length} not applicable, ${v.filter(x=>x.error).length} failed`);}

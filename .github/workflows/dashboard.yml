@@ -22,7 +22,7 @@ concurrency:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -46,6 +46,9 @@ jobs:
         run: node refresh-bio-comparison.mjs kospi
       - name: Verify latest KOSDAQ ETF comparison before publication
         run: node refresh-bio-comparison.mjs kosdaq
+      - name: Collect overseas ETF holdings for the stock trends tab
+        # Secondary data: failures only warn and never block the domestic dashboard or Telegram delivery.
+        run: node refresh-overseas.mjs || echo '::warning::Overseas ETF collection failed; the stock trends tab keeps earlier data.'
       - run: node build-dashboard.mjs
       - name: Build latest all-holdings dashboard
         run: node build-all-holdings.mjs
@@ -55,7 +58,7 @@ jobs:
         run: |
           git config user.name 'ETF dashboard bot'
           git config user.email 'etf-dashboard@users.noreply.github.com'
-          git add state/cumulative.json state/bio-comparison.json state/bio-comparison-history.json state/us-comparison.json state/us-comparison-history.json state/kospi-comparison.json state/kospi-comparison-history.json state/kosdaq-comparison.json state/kosdaq-comparison-history.json state/period-holdings.json
+          git add state/cumulative.json state/bio-comparison.json state/bio-comparison-history.json state/us-comparison.json state/us-comparison-history.json state/kospi-comparison.json state/kospi-comparison-history.json state/kosdaq-comparison.json state/kosdaq-comparison-history.json state/period-holdings.json state/overseas-holdings.json
           if ! git diff --cached --quiet; then
             git commit -m 'Update public ETF holdings history'
             git push
