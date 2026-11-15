@@ -59,7 +59,8 @@ for(const theme of ['all','ai',...COMPARISON_THEMES]){
  let html;
  try{
   let overseas=null;try{overseas=JSON.parse(await readFile('state/overseas-holdings.json','utf8'));}catch(e){if(e.code!=='ENOENT')throw e;}
-  const model=overseas&&buildStockModel(overseas,history),stockPrices={};
+  let observations=null;try{observations=JSON.parse(await readFile('state/overseas-observations.json','utf8'));}catch(e){if(e.code!=='ENOENT')throw e;}
+  const model=overseas&&buildStockModel(overseas,history,{observations}),stockPrices={};
   if(model){
    for(const list of Object.values(prices))for(const [code,v] of Object.entries(list)){const k=securityKey(code);if(k&&v?.points&&model.stocks[k]&&!stockPrices[k])stockPrices[k]=v;}
    const keys=priceCandidates(model).filter(k=>!stockPrices[k]&&priceCode(k));let next=0;
