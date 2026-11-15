@@ -142,6 +142,14 @@ function client(M,P){
    s.w[i].forEach(function(p){out+='<circle cx="'+x(p[0])+'" cy="'+y(val(i,p[1]))+'" r="3" '+(p[3]?'fill="white" stroke="'+col+'" stroke-width="1.6"':'fill="'+col+'"')+'><title>'+esc(nm(e)+' '+D[p[0]]+' 비중 '+p[1].toFixed(2)+'%'+(dm?' · 첫 기록 대비 '+fmt(val(i,p[1])):'')+(p[3]?' · 제3자 기록':''))+'</title></circle>';});});
   s.c.forEach(function(c){if(view.hidden[c[1]]||!s.w[c[1]]||!inGroup(c[1],kr))return;var di=M.dates.indexOf(c[0]),e=M.etfs[c[1]];if(di<0)return;var up=c[2]===0||c[2]===1||c[2]===4,v=c[5]!==null?c[5]:c[4];if(v===null)return;var cy=y(val(c[1],v))+(up?-10:10);
    out+='<text x="'+x(di)+'" y="'+(cy+4)+'" text-anchor="middle" font-size="12" fill="'+COLORS[c[1]%COLORS.length]+'">'+(up?'▲':'▼')+'<title>'+esc(nm(e)+' '+M.kinds[c[2]]+' '+c[0])+'</title></text>';});
+  // ETF name at the start of each line; labels step up/down to avoid overlapping each other.
+  var placed=[],tw=function(t){var w=6;for(var ch=0;ch<t.length;ch++)w+=t.charCodeAt(ch)>0x3000?12:7;return w;};
+  ids.map(function(i){var p=s.w[i][0];return {i:i,x:x(p[0]),y:y(val(i,p[1])),t:nm(M.etfs[i])};}).sort(function(a,b){return a.x-b.x||a.y-b.y;}).forEach(function(l){
+   var w=tw(l.t),h=14,lx=Math.max(L+2,Math.min(l.x+6,W-R-w)),ly=l.y-7;
+   var hit=function(yy){return placed.some(function(q){return lx<q.x+q.w&&lx+w>q.x&&yy-h<q.y&&yy>q.y-h;});};
+   for(var t=0;t<14&&hit(ly);t++)ly=l.y-7+(t%2?-1:1)*h*Math.ceil((t+1)/2);
+   ly=Math.max(T+12,Math.min(H-B-4,ly));placed.push({x:lx,y:ly,w:w});
+   out+='<text x="'+lx+'" y="'+ly+'" font-size="12" font-weight="700" fill="'+COLORS[l.i%COLORS.length]+'" stroke="white" stroke-width="3" paint-order="stroke" stroke-linejoin="round">'+esc(l.t)+'</text>';});
   return out+'</svg>';
  }
  function drawChart(k,s){
