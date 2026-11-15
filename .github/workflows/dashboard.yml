@@ -67,6 +67,26 @@ jobs:
       - name: Deploy dashboard
         id: deployment
         uses: actions/deploy-pages@v4
+      - name: Update Netlify bio share page
+        # Secondary share (https://bio-etf.netlify.app): a failure only warns and never blocks Telegram delivery.
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          if [ -z "$NETLIFY_AUTH_TOKEN" ] || [ -z "$NETLIFY_SITE_ID" ]; then
+            echo '::warning::Netlify secrets are missing; bio-etf.netlify.app was not updated.'
+            exit 0
+          fi
+          (cd output/site/bio-share && zip -q -r "$RUNNER_TEMP/bio-share.zip" .)
+          status=$(curl -sS -o "$RUNNER_TEMP/netlify.json" -w '%{http_code}' --max-time 120 \
+            -H "Authorization: Bearer $NETLIFY_AUTH_TOKEN" -H 'Content-Type: application/zip' \
+            --data-binary "@$RUNNER_TEMP/bio-share.zip" \
+            "https://api.netlify.com/api/v1/sites/$NETLIFY_SITE_ID/deploys") || status=000
+          if [ "${status:0:1}" = 2 ]; then
+            node -e "const d=require(process.env.RUNNER_TEMP+'/netlify.json');console.log('Netlify deploy',d.id,d.state)"
+          else
+            echo "::warning::Netlify deploy failed with HTTP $status; bio-etf.netlify.app keeps its previous version."
+          fi
       - name: Send published dashboard link
         run: node notify.mjs
         env:
