@@ -23,12 +23,12 @@ export function flowFactor(prev,cur){
 export function holdingChanges(prev,cur,{threshold=CHANGE_THRESHOLD,monthly=false}={}){
  const flow=flowFactor(prev,cur),p=new Map(prev.rows.map(r=>[r[0],r])),c=new Map(cur.rows.map(r=>[r[0],r])),out=[];
  for(const [k,r] of c){const q=p.get(k);
-  if(!q){out.push({key:k,kind:'편입',adj:null,wPrev:null,wNow:r[2]});continue;}
+  if(!q){out.push({key:k,kind:'편입',adj:null,wPrev:null,wNow:r[2],sPrev:null,sNow:r[1]});continue;}
   if(!flow||!(q[1]>0)||!(r[1]>0))continue;
   const adj=r[1]/(q[1]*flow.f)-1;
-  if(Math.abs(adj)>threshold)out.push({key:k,kind:adj>0?'증가':'감소',adj,wPrev:q[2],wNow:r[2],method:flow.method});
+  if(Math.abs(adj)>threshold)out.push({key:k,kind:adj>0?'증가':'감소',adj,wPrev:q[2],wNow:r[2],sPrev:q[1],sNow:r[1],method:flow.method});
  }
- for(const [k,q] of p)if(!c.has(k))out.push({key:k,kind:'편출',adj:null,wPrev:q[2],wNow:null});
+ for(const [k,q] of p)if(!c.has(k))out.push({key:k,kind:'편출',adj:null,wPrev:q[2],wNow:null,sPrev:q[1],sNow:null});
  return out.map(x=>({...x,monthly}));
 }
 const domesticKey=code=>{const k=securityKey(code);return k&&!k.startsWith('KR:')?k:k;};
@@ -45,10 +45,10 @@ export function buildStockModel(overseas,history,{etfs=OVERSEAS_ETFS,windowDays=
   const snaps=overseas.etfs[etf.id].snapshots,dates=Object.keys(snaps).sort(),idx=list.length;
   const shown=dates.filter(d=>d>=from||etf.type==='monthly'&&d===dates.at(-1));
   list.push({id:etf.id,name:etf.name,issuer:etf.issuer,type:etf.type,page:etf.page,asOf:dates.at(-1),first:dates[0],days:dates.length});
-  for(const d of shown){dateSet.add(d);snaps[d].rows.forEach((r,rank)=>{overseasKeys.add(r[0]);add(series,r[0]+'|'+idx,[d,r[2],rank+1]);});}
+  for(const d of shown){dateSet.add(d);snaps[d].rows.forEach((r,rank)=>{overseasKeys.add(r[0]);add(series,r[0]+'|'+idx,[d,r[2],rank+1,0,r[1]]);});}
   for(let i=1;i<dates.length;i++){if(dates[i]<from)continue;
    const gap=etf.type!=='monthly'&&dayGap(dates[i-1],dates[i])>5;
-   for(const ch of holdingChanges(snaps[dates[i-1]],snaps[dates[i]],{monthly:etf.type==='monthly'}))add(changes,ch.key,[dates[i],idx,KINDS.indexOf(ch.kind),ch.adj===null?null:r4(ch.adj),ch.wPrev,ch.wNow,ch.method==='1좌당'?1:0,gap||etf.type==='monthly'?dates[i-1]:null]);
+   for(const ch of holdingChanges(snaps[dates[i-1]],snaps[dates[i]],{monthly:etf.type==='monthly'}))add(changes,ch.key,[dates[i],idx,KINDS.indexOf(ch.kind),ch.adj===null?null:r4(ch.adj),ch.wPrev,ch.wNow,ch.method==='1좌당'?1:0,gap||etf.type==='monthly'?dates[i-1]:null,ch.sPrev??null,ch.sNow??null]);
   }
   // Third-party observations (state/overseas-observations.json): dated points only on days without an official
   // file; buy/sell estimates only when the day's records cover ≥80% of the fund, flow-adjusted by their median.
@@ -56,12 +56,12 @@ export function buildStockModel(overseas,history,{etfs=OVERSEAS_ETFS,windowDays=
   const byDay=new Map();for(const r of obs){let a=byDay.get(r[0]);if(!a)byDay.set(r[0],a=[]);a.push(r);}
   const fundSize=snaps[dates[0]].rows.length;
   for(const [day,rows] of byDay){
-   if(!snaps[day]){dateSet.add(day);for(const r of rows){overseasKeys.add(r[2]);add(series,r[2]+'|'+idx,[day,r[4],null,1]);}}
+   if(!snaps[day]){dateSet.add(day);for(const r of rows){overseasKeys.add(r[2]);add(series,r[2]+'|'+idx,[day,r[4],null,1,r[3]]);}}
    const ratios=rows.filter(r=>r[5]>0&&r[3]>0).map(r=>r[3]/r[5]);
    if(rows.length<0.8*fundSize||ratios.length<10)continue;
    const f=median(ratios);
    for(const r of rows){const kind=!(r[5]>0)&&r[3]>0?'편입':r[5]>0&&!(r[3]>0)?'편출':null,adj=kind?null:r[3]/(r[5]*f)-1;
-    if(kind||Math.abs(adj)>CHANGE_THRESHOLD)add(changes,r[2],[day,idx,KINDS.indexOf(kind||(adj>0?'증가':'감소')),adj===null?null:r4(adj),r[6],r[4],2,null]);}
+    if(kind||Math.abs(adj)>CHANGE_THRESHOLD)add(changes,r[2],[day,idx,KINDS.indexOf(kind||(adj>0?'증가':'감소')),adj===null?null:r4(adj),r[6],r[4],2,null,r[5]??null,r[3]??null]);}
   }
  }
  // Domestic ETFs (state/cumulative.json): every product that holds at least one security found in the overseas ETFs.
@@ -84,7 +84,7 @@ export function buildStockModel(overseas,history,{etfs=OVERSEAS_ETFS,windowDays=
  const stocks={};
  for(const key of overseasKeys){
   const w={};let holders=0,total=0;
-  list.forEach((e,idx)=>{const s=series.get(key+'|'+idx);if(!s)return;s.sort((a,b)=>a[0].localeCompare(b[0]));w[idx]=s.map(([d,v,rank,third])=>third?[di.get(d),v,rank,1]:[di.get(d),v,rank]);const last=s.at(-1);if(last[0]===e.asOf){holders++;total+=last[1];}});
+  list.forEach((e,idx)=>{const s=series.get(key+'|'+idx);if(!s)return;s.sort((a,b)=>a[0].localeCompare(b[0]));w[idx]=s.map(([d,v,rank,third,shares])=>Number.isFinite(shares)?[di.get(d),v,rank,third?1:0,shares]:third?[di.get(d),v,rank,1]:[di.get(d),v,rank]);const last=s.at(-1);if(last[0]===e.asOf){holders++;total+=last[1];}});
   stocks[key]={n:names[key]||key,h:holders,t:r2(total),w,c:(changes.get(key)||[]).sort((a,b)=>b[0].localeCompare(a[0]))};
  }
  const od=(observations?.records||[]).map(r=>r[0]).sort();
@@ -105,6 +105,7 @@ function client(M,P){
  var TYPE={index:'지수형',active:'액티브',monthly:'월간(월말 기준)',domestic:'국내 (비중만)'};
  var $=function(id){return document.getElementById(id);};
  var nm=function(e){return e.type==='domestic'?e.name:e.id;};
+ var sh=function(v){return v===null||v===undefined?'–':Math.round(v).toLocaleString('en-US')+'주';};
  var esc=function(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});};
  var pct=function(v,d){return v===null||v===undefined?'–':v.toFixed(d===undefined?2:d)+'%';};
  var pp=function(v){if(v===null||v===undefined)return '<span class="st-muted">–</span>';var c=v>0.005?'st-up':v<-0.005?'st-down':'';return '<span class="'+c+'">'+(v>0?'+':'')+v.toFixed(2)+'%p</span>';};
@@ -148,7 +149,7 @@ function client(M,P){
     for(var g2=0;g2<=5;g2++){var v2=pl+(ph-pl)*g2/5;out+='<text x="'+(W-R+8)+'" y="'+(py(v2)+4)+'" font-size="11" fill="#111827">'+(v2>=1000?Math.round(v2).toLocaleString():v2.toFixed(2))+'</text>';}}}
   ids.forEach(function(i){var e=M.etfs[i],col=COLORS[i%COLORS.length],seg='',prev=null;s.w[i].forEach(function(p){seg+=(prev!==null&&p[0]-prev<=(e.type==='monthly'?999:6)?'L':'M')+x(p[0])+' '+y(val(i,p[1]));prev=p[0];});
    out+='<path d="'+seg+'" fill="none" stroke="'+col+'" stroke-width="2.2"/>';
-   s.w[i].forEach(function(p){out+='<circle cx="'+x(p[0])+'" cy="'+y(val(i,p[1]))+'" r="3" '+(p[3]?'fill="white" stroke="'+col+'" stroke-width="1.6"':'fill="'+col+'"')+'><title>'+esc(nm(e)+' '+D[p[0]]+' 비중 '+p[1].toFixed(2)+'%'+(dm?' · 첫 기록 대비 '+fmt(val(i,p[1])):'')+(p[3]?' · 제3자 기록':''))+'</title></circle>';});});
+   s.w[i].forEach(function(p){out+='<circle cx="'+x(p[0])+'" cy="'+y(val(i,p[1]))+'" r="3" '+(p[3]?'fill="white" stroke="'+col+'" stroke-width="1.6"':'fill="'+col+'"')+'><title>'+esc(nm(e)+' '+D[p[0]]+' 비중 '+p[1].toFixed(2)+'%'+(p[4]!=null?' · '+sh(p[4]):'')+(dm?' · 첫 기록 대비 '+fmt(val(i,p[1])):'')+(p[3]?' · 제3자 기록':''))+'</title></circle>';});});
   s.c.forEach(function(c){if(view.hidden[c[1]]||!s.w[c[1]]||!inGroup(c[1],kr))return;var di=M.dates.indexOf(c[0]),e=M.etfs[c[1]];if(di<d0)return;var up=c[2]===0||c[2]===1||c[2]===4,v=c[5]!==null?c[5]:c[4];if(v===null)return;var cy=y(val(c[1],v))+(up?-10:10);
    out+='<text x="'+x(di)+'" y="'+(cy+4)+'" text-anchor="middle" font-size="12" fill="'+COLORS[c[1]%COLORS.length]+'">'+(up?'▲':'▼')+'<title>'+esc(nm(e)+' '+M.kinds[c[2]]+' '+c[0])+'</title></text>';});
   // ETF name at the start of each line (with the value when pinned outside the range); labels avoid each other.
@@ -186,16 +187,16 @@ function client(M,P){
    '<div class="st-card"><small>최대 비중</small><b>'+(top?pct(top.last[1]):'–')+'</b><span>'+(top?esc(top.e.type==='domestic'?top.e.name:top.e.id+' '+top.e.name):'보유 ETF 없음')+'</span></div>'+
    '<div class="st-card"><small>최근 7일 보유량 변화 (추정)</small><b>액티브 ▲'+cnt(function(c){return act(c)&&(c[2]===0||c[2]===1);})+' ▼'+cnt(function(c){return act(c)&&(c[2]===2||c[2]===3);})+'</b><span>지수형 ▲'+cnt(function(c){return idx(c)&&(c[2]===0||c[2]===1);})+' ▼'+cnt(function(c){return idx(c)&&(c[2]===2||c[2]===3);})+' · 국내 비중 변화 '+cnt(function(c){return M.etfs[c[1]].type==='domestic';})+'</span></div>';
   var delta=function(arr,back){if(back<0)return null;var p=at(arr,back),l=arr[arr.length-1];return p&&p[0]<l[0]?l[1]-p[1]:null;};
-  $('st-holders').innerHTML=holders.length?'<table><thead><tr><th>ETF</th><th>유형</th><th>기준일</th><th>비중</th><th>펀드 내 순위</th><th title="직전 기록 대비">1일</th><th>1주</th><th>1개월</th><th>최근 보유량 변화 (추정)</th></tr></thead><tbody>'+holders.map(function(h){
+  $('st-holders').innerHTML=holders.length?'<table><thead><tr><th>ETF</th><th>유형</th><th>기준일</th><th>비중</th><th>보유 주식 수</th><th>펀드 내 순위</th><th title="직전 기록 대비">1일</th><th>1주</th><th>1개월</th><th>최근 보유량 변화 (추정)</th></tr></thead><tbody>'+holders.map(function(h){
     var last=s.c.filter(function(c){return c[1]===h.i;})[0],col=COLORS[h.i%COLORS.length];
     var lastTxt=!last?'<span class="st-muted">변화 없음</span>':esc(M.kinds[last[2]])+(last[3]!==null?' '+(last[3]>0?'+':'')+(last[3]*100).toFixed(1)+'%':'')+' <small>'+last[0].slice(5)+'</small>';
     var name=h.e.page?'<a href="'+esc(h.e.page)+'" target="_blank" rel="noopener">'+esc(h.e.id)+'</a>':esc(nm(h.e));
-    return '<tr><td><i style="background:'+col+'"></i>'+name+'<small>'+esc(h.e.type==='domestic'?h.e.issuer||'국내 ETF':h.e.issuer+' · '+h.e.name)+'</small></td><td>'+TYPE[h.e.type]+'</td><td>'+h.e.asOf+'</td><td><b>'+pct(h.last[1])+'</b></td><td>'+(h.last[2]?h.last[2]+'위':'–')+'</td><td>'+pp(h.e.type==='monthly'?null:delta(h.arr,h.last[0]-1))+'</td><td>'+pp(h.e.type==='monthly'?null:delta(h.arr,d7))+'</td><td>'+pp(delta(h.arr,d30))+'</td><td>'+lastTxt+'</td></tr>';}).join('')+'</tbody></table>':'<p class="st-muted">현재 이 종목을 보유한 ETF가 없습니다.</p>';
+    return '<tr><td><i style="background:'+col+'"></i>'+name+'<small>'+esc(h.e.type==='domestic'?h.e.issuer||'국내 ETF':h.e.issuer+' · '+h.e.name)+'</small></td><td>'+TYPE[h.e.type]+'</td><td>'+h.e.asOf+'</td><td><b>'+pct(h.last[1])+'</b></td><td>'+(h.e.type==='domestic'?'<span class="st-muted">–</span>':sh(h.last[4]))+'</td><td>'+(h.last[2]?h.last[2]+'위':'–')+'</td><td>'+pp(h.e.type==='monthly'?null:delta(h.arr,h.last[0]-1))+'</td><td>'+pp(h.e.type==='monthly'?null:delta(h.arr,d7))+'</td><td>'+pp(delta(h.arr,d30))+'</td><td>'+lastTxt+'</td></tr>';}).join('')+'</tbody></table>':'<p class="st-muted">현재 이 종목을 보유한 ETF가 없습니다.</p>';
   if(view.key!==k){view.hidden={};view.key=k;$('st-chart').innerHTML='';}
   drawChart(k,s);
-  $('st-log').innerHTML=s.c.length?'<table><thead><tr><th>날짜</th><th>ETF</th><th>유형</th><th>구분</th><th>조정 보유량 변화</th><th>비중</th><th>비고</th></tr></thead><tbody>'+s.c.slice(0,150).map(function(c){var e=M.etfs[c[1]],up=c[2]===0||c[2]===1||c[2]===4;
+  $('st-log').innerHTML=s.c.length?'<table><thead><tr><th>날짜</th><th>ETF</th><th>유형</th><th>구분</th><th>조정 보유량 변화</th><th>보유 주식 수</th><th>비중</th><th>비고</th></tr></thead><tbody>'+s.c.slice(0,150).map(function(c){var e=M.etfs[c[1]],up=c[2]===0||c[2]===1||c[2]===4;
     var note=[c[6]===2?'제3자 기록 · 펀드 전체 증감 보정':c[6]?'1좌당 기준':c[3]!==null?'펀드 전체 증감 보정':'',c[7]?(e.type==='monthly'?'직전 공개 '+c[7]+' 대비':'관측 구간 '+c[7]+'~'):''].filter(Boolean).join(' · ');
-    return '<tr><td>'+c[0]+'</td><td><i style="background:'+COLORS[c[1]%COLORS.length]+'"></i>'+esc(nm(e))+'</td><td>'+TYPE[e.type]+'</td><td class="'+(up?'st-up':'st-down')+'">'+M.kinds[c[2]]+'</td><td>'+(c[3]===null?'<span class="st-muted">–</span>':(c[3]>0?'+':'')+(c[3]*100).toFixed(1)+'%')+'</td><td>'+pct(c[4])+' → '+pct(c[5])+'</td><td><small>'+esc(note)+'</small></td></tr>';}).join('')+'</tbody></table>':'<p class="st-muted">기록 기간 안에 보유량·비중 변화가 없습니다.</p>';
+    return '<tr><td>'+c[0]+'</td><td><i style="background:'+COLORS[c[1]%COLORS.length]+'"></i>'+esc(nm(e))+'</td><td>'+TYPE[e.type]+'</td><td class="'+(up?'st-up':'st-down')+'">'+M.kinds[c[2]]+'</td><td>'+(c[3]===null?'<span class="st-muted">–</span>':(c[3]>0?'+':'')+(c[3]*100).toFixed(1)+'%')+'</td><td>'+(c[8]==null&&c[9]==null?'<span class="st-muted">–</span>':sh(c[8])+' → '+sh(c[9]))+'</td><td>'+pct(c[4])+' → '+pct(c[5])+'</td><td><small>'+esc(note)+'</small></td></tr>';}).join('')+'</tbody></table>':'<p class="st-muted">기록 기간 안에 보유량·비중 변화가 없습니다.</p>';
   if(location.hash!=='#'+k)history.replaceState(null,'','#'+k);
  }
  var pick=function(v){v=String(v||'').trim();if(!v)return;var up=v.toUpperCase(),hit=keys.filter(function(k){return label(k)===v||k===up||k.split(':')[1]===up;})[0]||keys.filter(function(k){return label(k).toUpperCase().indexOf(up)>=0;})[0];if(hit)render(hit);};
@@ -224,7 +225,7 @@ export function stockTrendsPage(model,{prices={},version=''}={}){
   '<section class="st-box st-note"><h2>읽는 법</h2><ul>'+
   '<li><b>조정 보유량 변화</b>는 추정치입니다. ETF 자금 유입·유출(설정·환매)로 모든 종목 수량이 함께 늘거나 주는 효과를 빼고 계산합니다. iShares는 ETF 1좌당 보유 주식 수, 나머지는 두 날짜에 공통으로 보유한 종목들의 수량 비율 중앙값으로 보정합니다. ±0.5%를 넘을 때만 증가·감소로 표시합니다.</li>'+
   '<li><b>지수형</b> ETF의 변화는 대부분 지수 변경·리밸런싱, <b>액티브</b> ETF는 운용 판단일 가능성이 큽니다. 실제 거래 내역은 아닙니다.</li>'+
-  '<li><b>국내</b> ETF는 비중만 있어 매수·매도를 판단하지 않고 0.5%p 이상 비중 변화만 표시합니다. 비중은 주가만 움직여도 바뀝니다.</li>'+
+  '<li><b>보유 주식 수</b>는 각 운용사가 공개한 보유종목 파일의 수량 그대로입니다(해당 기준일, 출처 링크 참고). 수량이 늘어도 ETF 자금 유입 때문일 수 있으니 조정 보유량 변화와 함께 보세요.</li><li><b>국내</b> ETF는 비중만 있어 매수·매도를 판단하지 않고 0.5%p 이상 비중 변화만 표시합니다. 비중은 주가만 움직여도 바뀝니다.</li>'+
   '<li><b>월간</b>(Vanguard)은 월말 기준 공개 자료로 직전 공개 대비 변화입니다. 같은 종목이라도 ADR과 현지 주식(예: TSM과 2330)은 따로 셉니다.</li>'+
   '<li>해외 ETF 기록은 Global X(BOTZ·AIQ)만 공식 과거 파일로 '+esc(model.etfs.filter(e=>e.issuer==='Global X').map(e=>e.first).sort()[0]||'-')+' 이후를 채웠고, 나머지는 수집을 시작한 날부터 쌓입니다. 기준일은 미국 장 마감 기준입니다.</li>'+
   (model.third?'<li><b>ARK 제3자 기록</b>: 공식 수집 이전 ARK 5종의 '+esc(model.third.from)+'~'+esc(model.third.to)+' 값은 <a href="https://market-breadth-monitor.vercel.app/etf" target="_blank" rel="noopener">시장 폭 모니터</a>의 변화 기록입니다. 공식 ARK 파일과 겹치는 '+model.third.matched+'건이 모두 일치함을 확인했습니다. 수량이 바뀐 날만 기록되어 있어 빈 날은 비워 두며, 그래프에서는 속이 빈 점으로 표시합니다.</li>':'')+

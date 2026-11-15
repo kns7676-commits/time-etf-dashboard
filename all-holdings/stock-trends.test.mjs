@@ -29,6 +29,8 @@ test('stock model joins overseas and domestic ETFs on the same security key',()=
  assert.equal(s.h,3);assert.equal(s.n,'NVIDIA Corp');
  const kinds=s.c.map(c=>[c[0],m.etfs[c[1]].id,m.kinds[c[2]]]);
  assert.deepEqual(kinds,[['2026-11-13','ARKK','증가'],['2026-11-13','2','비중↓']]);
+ const arkk=s.c.find(c=>m.etfs[c[1]].id==='ARKK');assert.deepEqual([arkk[8],arkk[9]],[100,130]);
+ assert.equal(s.w[0].at(-1)[4],130,'series points carry the share count');assert.ok(s.c.find(c=>m.etfs[c[1]].id==='2')[9]==null,'domestic ETFs have no share counts');
  assert.ok(!m.etfs.some(e=>e.name==='TIME 코스피액티브'),'domestic ETFs without any overseas-held security are omitted');
  assert.equal(priceCode('US:NVDA'),'NVDA US EQUITY');assert.equal(priceCode('JP:6954'),'6954 JP EQUITY');assert.equal(priceCode('CN:603666'),null);
  assert.equal(priceCandidates(m)[0],'US:NVDA');
