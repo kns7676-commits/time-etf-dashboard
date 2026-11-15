@@ -71,3 +71,15 @@ test('collection isolates failures, rejects HTML pages and backfills only dated 
  const again=seen.length;await updateOverseasHoldings(state,{fetcher,sleep:async()=>{},now:new Date('2026-11-15T01:00:00Z'),backfillDays:5,etfs:[etfs[0]],log:{log(){},warn(){}}});
  assert.equal(seen.length-again,1,'known and missing Global X dates are not fetched again; only today is retried');
 });
+test('transient network errors and 5xx are retried, while 429, 404 and HTML pages are not',async()=>{
+ const ark=OVERSEAS_ETFS.find(e=>e.id==='ARKK'),csv='date,fund,company,ticker,cusip,shares,market value ($),weight (%)\n'+many(12,i=>'11/13/2026,ARKK,STOCK '+i+',S'+i+',x,"100","$1",8.00%');
+ const run=async responses=>{let n=0;const pauses=[];const state={};
+  const summary=await updateOverseasHoldings(state,{fetcher:async()=>{const r=responses[Math.min(n++,responses.length-1)];if(r instanceof Error)throw r;return r;},sleep:async ms=>{pauses.push(ms);},now:new Date('2026-11-15T01:00:00Z'),etfs:[ark],log:{log(){},warn(){}}});
+  return {calls:n,pauses:pauses.filter(ms=>ms!==1000),summary:summary[0],state};};
+ let r=await run([new TypeError('fetch failed'),new Response('down',{status:503}),new Response(csv)]);
+ assert.equal(r.calls,3);assert.deepEqual(r.pauses,[3000,6000]);assert.equal(r.summary.failed,null);assert.ok(r.state.etfs.ARKK.snapshots['2026-11-13']);
+ r=await run([new TypeError('fetch failed')]);assert.equal(r.calls,3);assert.equal(r.summary.failed,'fetch failed');
+ for(const [res,msg] of [[new Response('slow down',{status:429}),'HTTP 429'],[new Response('none',{status:404}),'HTTP 404'],[new Response('<!DOCTYPE html><html></html>'),'expected data file, got an HTML page']]){
+  r=await run([res,new Response(csv)]);assert.equal(r.calls,1,msg);assert.equal(r.summary.failed,msg);
+ }
+});

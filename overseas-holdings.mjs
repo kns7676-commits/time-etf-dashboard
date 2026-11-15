@@ -111,9 +111,24 @@ async function fetchBody(etf,url,fetcher){
  const r=await fetcher(url,{headers,signal:AbortSignal.timeout(60000)});
  if(!r.ok){await r.body?.cancel();const e=Error('HTTP '+r.status);e.status=r.status;throw e;}
  const buf=Buffer.from(await r.arrayBuffer());
- if(['spdr','vaneck'].includes(etf.parser)){if(buf.readUInt32LE(0)!==0x04034b50)throw Error('expected xlsx, got '+(r.headers.get('content-type')||'unknown'));return buf;}
- const text=buf.toString('utf8');if(/^\s*<!doctype html|^\s*<html/i.test(text))throw Error('expected data file, got an HTML page');
+ const wrong=m=>Object.assign(Error(m),{permanent:true});
+ if(['spdr','vaneck'].includes(etf.parser)){if(buf.length<4||buf.readUInt32LE(0)!==0x04034b50)throw wrong('expected xlsx, got '+(r.headers.get('content-type')||'unknown'));return buf;}
+ const text=buf.toString('utf8');if(/^\s*<!doctype html|^\s*<html/i.test(text))throw wrong('expected data file, got an HTML page');
  return text;
+}
+// Transient failures (network errors, timeouts, HTTP 5xx) are retried twice with 3s/6s pauses. HTTP 429 is never
+// retried (respect the issuer's rate limit), nor are 404s (no file for that day) or wrong-content responses.
+export const RETRY_ATTEMPTS=3;
+export async function fetchWithRetry(etf,url,fetcher,sleep,log=console){
+ for(let attempt=1;;attempt++){
+  try{return await fetchBody(etf,url,fetcher);}
+  catch(e){
+   const transient=!e.permanent&&(e.status===undefined||e.status>=500);
+   if(!transient||attempt>=RETRY_ATTEMPTS)throw e;
+   log.log(`${etf.id}: ${e.message}; retry ${attempt+1}/${RETRY_ATTEMPTS}`);
+   await sleep(3000*attempt);
+  }
+ }
 }
 const weekdays=(today,days)=>{const out=[];for(let i=1;i<=days;i++){const d=new Date(Date.parse(today)-i*86400000);if(d.getUTCDay()%6)out.push(d.toISOString().slice(0,10));}return out;};
 export async function updateOverseasHoldings(state,{fetcher=fetch,sleep=ms=>new Promise(r=>setTimeout(r,ms)),now=new Date(),backfillDays=31,etfs=OVERSEAS_ETFS,log=console}={}){
@@ -127,7 +142,7 @@ export async function updateOverseasHoldings(state,{fetcher=fetch,sleep=ms=>new 
    if(date&&date!==today&&(e.snapshots[date]||e.missing.includes(date)))continue;
    const url=date?etf.url.replace('{date}',date.replaceAll('-','')):etf.url;
    try{
-    const body=await fetchBody(etf,url,fetcher);
+    const body=await fetchWithRetry(etf,url,fetcher,sleep,log);
     const snap=validateSnapshot(etf,PARSERS[etf.parser](body),today);
     const result=storeSnapshot(state,etf,snap,{fetchedAt,source:url});
     if(result==='added'||result==='corrected')added++;
