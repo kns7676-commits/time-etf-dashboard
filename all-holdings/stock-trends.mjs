@@ -118,37 +118,46 @@ function client(M,P){
  var niceStep=function(span,count){var raw=span/count,p=Math.pow(10,Math.floor(Math.log(raw)/Math.LN10)),m=raw/p;return (m<=1?1:m<=2?2:m<=2.5?2.5:m<=5?5:10)*p;};
  var inGroup=function(i,kr){return (M.etfs[i].type==='domestic')===kr;};
  function chart(k,s,kr){
-  var D=M.dates,n=D.length,all=Object.keys(s.w).filter(function(i){return inGroup(i,kr);}),ids=all.filter(function(i){return !view.hidden[i];});
+  var D=M.dates,all=Object.keys(s.w).filter(function(i){return inGroup(i,kr);}),ids=all.filter(function(i){return !view.hidden[i];});
   if(!all.length)return '<p class="st-muted">이 종목을 보유한 '+(kr?'한국':'미국')+' 상장 ETF 기록이 없습니다.</p>';
   if(!ids.length)return '<p class="st-muted">범례에서 ETF를 하나 이상 선택하세요.</p>';
   var dm=view.mode==='d',base=function(i){return s.w[i][0][1];},val=function(i,v){return dm?v-base(i):v;};
-  var step=Math.max(18,Math.min(56,900/Math.max(1,n-1))),L=66,R=66,T=18,B=40,H=Math.min(560,Math.max(440,300+ids.length*16)),W=L+R+step*Math.max(1,n-1);
-  var vals=[];ids.forEach(function(i){s.w[i].forEach(function(p){vals.push(val(i,p[1]));});});
+  // The x-axis starts at this group's first record; earlier dates carry no information for it.
+  var d0=Infinity;ids.forEach(function(i){d0=Math.min(d0,s.w[i][0][0]);});
+  var d1=D.length-1,n=d1-d0+1;
+  var step=Math.max(18,Math.min(56,900/Math.max(1,n-1))),L=72,R=72,T=30,B=40,H=Math.min(560,Math.max(440,300+ids.length*16)),W=L+R+step*Math.max(1,n-1);
+  var x=function(i){return L+(i-d0)*step;};
+  // The y-axis fits lines with two or more records, so single snapshots (e.g. month-end Vanguard) do not flatten
+  // the trends; points outside the range are pinned to the edge and labelled with their value.
+  var multi=ids.filter(function(i){return s.w[i].length>1;}),fit=multi.length?multi:ids;
+  var vals=[];fit.forEach(function(i){s.w[i].forEach(function(p){vals.push(val(i,p[1]));});});
   var lo=Math.min.apply(null,vals),hi=Math.max.apply(null,vals);if(dm){lo=Math.min(lo,0);hi=Math.max(hi,0);}
   if(hi-lo<0.2){var mid=(hi+lo)/2;lo=mid-0.1;hi=mid+0.1;}
   var tk=niceStep(hi-lo,8);lo=Math.floor((lo-tk*0.25)/tk)*tk;hi=Math.ceil((hi+tk*0.25)/tk)*tk;if(!dm&&lo<0)lo=0;
   var dec=tk<0.1?2:tk<1||tk%1?1:0,fmt=function(v){return dm?(v>0.00001?'+':'')+v.toFixed(dec)+'%p':v.toFixed(dec)+'%';};
-  var x=function(i){return L+i*step;},y=function(v){return T+(H-T-B)*(1-(v-lo)/(hi-lo));};
+  var yr=function(v){return T+(H-T-B)*(1-(v-lo)/(hi-lo));},y=function(v){return Math.max(T,Math.min(H-B,yr(v)));};
   var out='<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" role="img" aria-label="'+esc(s.n)+' '+(kr?'한국':'미국')+' 상장 ETF별 비중 추이">';
+  out+='<text x="'+(L-8)+'" y="'+(T-14)+'" text-anchor="end" font-size="11" font-weight="700" fill="#475569">'+(dm?'변화(%p)':'비중(%)')+'</text>';
   var ticks=Math.round((hi-lo)/tk);
-  for(var g=0;g<=ticks;g++){var v=lo+tk*g,zero=dm&&Math.abs(v)<tk/1000;out+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y(v)+'" y2="'+y(v)+'" stroke="'+(zero?'#64748b':g%2?'#eef2f7':'#dfe6ef')+'"'+(zero?' stroke-width="1.4"':'')+'/><text x="'+(L-8)+'" y="'+(y(v)+4)+'" text-anchor="end" font-size="12" fill="#475569">'+fmt(v)+'</text>';}
-  var every=Math.max(1,Math.ceil(70/step));for(var i=0;i<n;i+=every)out+='<text x="'+x(i)+'" y="'+(H-B+18)+'" text-anchor="middle" font-size="11" fill="#64748b">'+D[i].slice(5)+'</text>';
-  var pr=P[k];if(view.price!==false&&pr&&pr.points&&pr.points.length>1){var pts=[],cl=[];for(var j=0;j<n;j++){var c=null;for(var q=0;q<pr.points.length;q++)if(pr.points[q].d<=D[j])c=pr.points[q].c;pts.push(c);if(c!==null)cl.push(c);}
+  for(var g=0;g<=ticks;g++){var v=lo+tk*g,zero=dm&&Math.abs(v)<tk/1000;out+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+yr(v)+'" y2="'+yr(v)+'" stroke="'+(zero?'#64748b':g%2?'#eef2f7':'#dfe6ef')+'"'+(zero?' stroke-width="1.4"':'')+'/><text x="'+(L-8)+'" y="'+(yr(v)+4)+'" text-anchor="end" font-size="12" fill="#475569">'+fmt(v)+'</text>';}
+  var every=Math.max(1,Math.ceil(70/step));for(var i=d0;i<=d1;i+=every)out+='<text x="'+x(i)+'" y="'+(H-B+18)+'" text-anchor="middle" font-size="11" fill="#64748b">'+D[i].slice(5)+'</text>';
+  var pr=P[k];if(view.price!==false&&pr&&pr.points&&pr.points.length>1){var pts=[],cl=[];for(var j=d0;j<=d1;j++){var c=null;for(var q=0;q<pr.points.length;q++)if(pr.points[q].d<=D[j])c=pr.points[q].c;pts.push(c);if(c!==null)cl.push(c);}
    if(cl.length>1){var pl=Math.min.apply(null,cl),ph=Math.max.apply(null,cl),pg=(ph-pl)*0.1||ph*0.05;pl-=pg;ph+=pg;var py=function(v){return T+(H-T-B)*(1-(v-pl)/(ph-pl));};
-    var path='';pts.forEach(function(c,j){if(c!==null)path+=(path?'L':'M')+x(j)+' '+py(c);});out+='<path d="'+path+'" fill="none" stroke="#111827" stroke-width="1.6" stroke-dasharray="5 4" opacity="0.75"/>';
+    var path='';pts.forEach(function(c,j){if(c!==null)path+=(path?'L':'M')+x(d0+j)+' '+py(c);});out+='<path d="'+path+'" fill="none" stroke="#111827" stroke-width="1.6" stroke-dasharray="5 4" opacity="0.75"/>';
+    out+='<text x="'+(W-R+8)+'" y="'+(T-14)+'" font-size="11" font-weight="700" fill="#111827">종가('+esc(pr.currency||'')+')</text>';
     for(var g2=0;g2<=5;g2++){var v2=pl+(ph-pl)*g2/5;out+='<text x="'+(W-R+8)+'" y="'+(py(v2)+4)+'" font-size="11" fill="#111827">'+(v2>=1000?Math.round(v2).toLocaleString():v2.toFixed(2))+'</text>';}}}
   ids.forEach(function(i){var e=M.etfs[i],col=COLORS[i%COLORS.length],seg='',prev=null;s.w[i].forEach(function(p){seg+=(prev!==null&&p[0]-prev<=(e.type==='monthly'?999:6)?'L':'M')+x(p[0])+' '+y(val(i,p[1]));prev=p[0];});
    out+='<path d="'+seg+'" fill="none" stroke="'+col+'" stroke-width="2.2"/>';
    s.w[i].forEach(function(p){out+='<circle cx="'+x(p[0])+'" cy="'+y(val(i,p[1]))+'" r="3" '+(p[3]?'fill="white" stroke="'+col+'" stroke-width="1.6"':'fill="'+col+'"')+'><title>'+esc(nm(e)+' '+D[p[0]]+' 비중 '+p[1].toFixed(2)+'%'+(dm?' · 첫 기록 대비 '+fmt(val(i,p[1])):'')+(p[3]?' · 제3자 기록':''))+'</title></circle>';});});
-  s.c.forEach(function(c){if(view.hidden[c[1]]||!s.w[c[1]]||!inGroup(c[1],kr))return;var di=M.dates.indexOf(c[0]),e=M.etfs[c[1]];if(di<0)return;var up=c[2]===0||c[2]===1||c[2]===4,v=c[5]!==null?c[5]:c[4];if(v===null)return;var cy=y(val(c[1],v))+(up?-10:10);
+  s.c.forEach(function(c){if(view.hidden[c[1]]||!s.w[c[1]]||!inGroup(c[1],kr))return;var di=M.dates.indexOf(c[0]),e=M.etfs[c[1]];if(di<d0)return;var up=c[2]===0||c[2]===1||c[2]===4,v=c[5]!==null?c[5]:c[4];if(v===null)return;var cy=y(val(c[1],v))+(up?-10:10);
    out+='<text x="'+x(di)+'" y="'+(cy+4)+'" text-anchor="middle" font-size="12" fill="'+COLORS[c[1]%COLORS.length]+'">'+(up?'▲':'▼')+'<title>'+esc(nm(e)+' '+M.kinds[c[2]]+' '+c[0])+'</title></text>';});
-  // ETF name at the start of each line; labels step up/down to avoid overlapping each other.
+  // ETF name at the start of each line (with the value when pinned outside the range); labels avoid each other.
   var placed=[],tw=function(t){var w=6;for(var ch=0;ch<t.length;ch++)w+=t.charCodeAt(ch)>0x3000?12:7;return w;};
-  ids.map(function(i){var p=s.w[i][0];return {i:i,x:x(p[0]),y:y(val(i,p[1])),t:nm(M.etfs[i])};}).sort(function(a,b){return a.x-b.x||a.y-b.y;}).forEach(function(l){
-   var w=tw(l.t),h=14,lx=Math.max(L+2,Math.min(l.x+6,W-R-w)),ly=l.y-7;
+  ids.map(function(i){var p=s.w[i][0],v=val(i,p[1]),r=yr(v),outside=r<T?'↑':r>H-B?'↓':'';return {i:i,x:x(p[0]),y:y(v),t:nm(M.etfs[i])+(outside?' '+(dm?fmt(v):p[1].toFixed(1)+'%')+' '+outside:'')};}).sort(function(a,b){return a.x-b.x||a.y-b.y;}).forEach(function(l){
+   var w=tw(l.t),h=14,lx=Math.max(L+2,Math.min(l.x+6,W-R-w)),top=T+12,bottom=H-B-4,start=Math.max(top,Math.min(bottom,l.y-7)),ly=start;
    var hit=function(yy){return placed.some(function(q){return lx<q.x+q.w&&lx+w>q.x&&yy-h<q.y&&yy>q.y-h;});};
-   for(var t=0;t<14&&hit(ly);t++)ly=l.y-7+(t%2?-1:1)*h*Math.ceil((t+1)/2);
-   ly=Math.max(T+12,Math.min(H-B-4,ly));placed.push({x:lx,y:ly,w:w});
+   for(var t=0;t<30&&hit(ly);t++){var c=start+(t%2?-1:1)*h*Math.ceil((t+1)/2);if(c>=top&&c<=bottom)ly=c;}
+   placed.push({x:lx,y:ly,w:w});
    out+='<text x="'+lx+'" y="'+ly+'" font-size="12" font-weight="700" fill="'+COLORS[l.i%COLORS.length]+'" stroke="white" stroke-width="3" paint-order="stroke" stroke-linejoin="round">'+esc(l.t)+'</text>';});
   return out+'</svg>';
  }
