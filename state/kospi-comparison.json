@@ -1,7 +1,7 @@
 {
   "universe": "kospi",
-  "date": "2026-11-16",
-  "checkedAt": "2026-11-17T03:06:24.886Z",
+  "date": "2026-11-17",
+  "checkedAt": "2026-11-18T02:34:29.039Z",
   "source": "https://www.funetf.co.kr/product/comparison/etf?itemIds=KR7385720008,KR70193G0003,KR7495060006,KR7495230005",
   "products": [
     {
@@ -9,19 +9,19 @@
       "isin": "KR7385720008",
       "name": "TIME 코스피액티브",
       "historyId": "11",
-      "count": 43,
+      "count": 44,
       "rows": [
         {
           "name": "삼성전자",
           "code": "005930",
           "displayCode": "005930",
-          "weight": 25.4
+          "weight": 25.2
         },
         {
           "name": "SK하이닉스",
           "code": "000660",
           "displayCode": "000660",
-          "weight": 20.7
+          "weight": 20.8
         },
         {
           "name": "삼성SDI",
@@ -33,13 +33,13 @@
           "name": "삼성전자우",
           "code": "005935",
           "displayCode": "005935",
-          "weight": 4
+          "weight": 3.9
         },
         {
           "name": "삼양식품",
           "code": "003230",
           "displayCode": "003230",
-          "weight": 2.7
+          "weight": 2.8
         },
         {
           "name": "KB금융",
@@ -51,7 +51,7 @@
           "name": "메리츠금융지주",
           "code": "138040",
           "displayCode": "138040",
-          "weight": 2.4
+          "weight": 2.5
         },
         {
           "name": "셀트리온",
@@ -66,9 +66,9 @@
           "weight": 2.3
         },
         {
-          "name": "LG에너지솔루션",
-          "code": "373220",
-          "displayCode": "373220",
+          "name": "삼성E&A",
+          "code": "028050",
+          "displayCode": "028050",
           "weight": 1.9
         }
       ],
@@ -85,19 +85,19 @@
           "name": "삼성전자",
           "code": "005930",
           "displayCode": "005930",
-          "weight": 30.2
+          "weight": 30
         },
         {
           "name": "SK하이닉스",
           "code": "000660",
           "displayCode": "000660",
-          "weight": 20.1
+          "weight": 20.3
         },
         {
           "name": "SK스퀘어",
           "code": "402340",
           "displayCode": "402340",
-          "weight": 4.3
+          "weight": 4.4
         },
         {
           "name": "KB금융",
@@ -124,44 +124,44 @@
           "weight": 1.7
         },
         {
-          "name": "SK",
-          "code": "034730",
-          "displayCode": "034730",
-          "weight": 1.4
-        },
-        {
           "name": "삼성바이오로직스",
           "code": "207940",
           "displayCode": "207940",
           "weight": 1.4
         },
         {
-          "name": "DB손해보험",
-          "code": "005830",
-          "displayCode": "005830",
+          "name": "SK",
+          "code": "034730",
+          "displayCode": "034730",
+          "weight": 1.4
+        },
+        {
+          "name": "셀트리온",
+          "code": "068270",
+          "displayCode": "068270",
           "weight": 1.4
         }
       ],
-      "top10Total": 69.4
+      "top10Total": 69.5
     },
     {
       "ticker": "495060",
       "isin": "KR7495060006",
       "name": "TIME 코리아밸류업액티브",
       "historyId": "15",
-      "count": 56,
+      "count": 57,
       "rows": [
         {
           "name": "SK하이닉스",
           "code": "000660",
           "displayCode": "000660",
-          "weight": 18.9
+          "weight": 19
         },
         {
           "name": "삼성전자",
           "code": "005930",
           "displayCode": "005930",
-          "weight": 18.8
+          "weight": 17.2
         },
         {
           "name": "KB금융",
@@ -185,7 +185,7 @@
           "name": "하나금융지주",
           "code": "086790",
           "displayCode": "086790",
-          "weight": 3.5
+          "weight": 3.6
         },
         {
           "name": "SK스퀘어",
@@ -209,10 +209,10 @@
           "name": "우리금융지주",
           "code": "316140",
           "displayCode": "316140",
-          "weight": 2.3
+          "weight": 2.4
         }
       ],
-      "top10Total": 65.4
+      "top10Total": 64.1
     },
     {
       "ticker": "495230",
@@ -225,13 +225,13 @@
           "name": "SK하이닉스",
           "code": "000660",
           "displayCode": "000660",
-          "weight": 20.3
+          "weight": 20
         },
         {
           "name": "삼성전자",
           "code": "005930",
           "displayCode": "005930",
-          "weight": 19.8
+          "weight": 19.7
         },
         {
           "name": "KB금융",
@@ -240,15 +240,15 @@
           "weight": 4.7
         },
         {
-          "name": "현대차",
-          "code": "005380",
-          "displayCode": "005380",
-          "weight": 3.5
-        },
-        {
           "name": "SK스퀘어",
           "code": "402340",
           "displayCode": "402340",
+          "weight": 3.6
+        },
+        {
+          "name": "현대차",
+          "code": "005380",
+          "displayCode": "005380",
           "weight": 3.5
         },
         {
@@ -270,16 +270,16 @@
           "weight": 2.5
         },
         {
+          "name": "우리금융지주",
+          "code": "316140",
+          "displayCode": "316140",
+          "weight": 2.5
+        },
+        {
           "name": "기아",
           "code": "000270",
           "displayCode": "000270",
           "weight": 2.5
-        },
-        {
-          "name": "우리금융지주",
-          "code": "316140",
-          "displayCode": "316140",
-          "weight": 2.2
         }
       ],
       "top10Total": 65.2

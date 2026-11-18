@@ -1,7 +1,7 @@
 {
   "universe": "bio",
-  "date": "2026-11-16",
-  "checkedAt": "2026-11-17T03:06:22.027Z",
+  "date": "2026-11-17",
+  "checkedAt": "2026-11-18T02:34:26.653Z",
   "source": "https://www.funetf.co.kr/product/comparison/etf?itemIds=KR7364970004,KR7463050005,KR7462900002,KR7244580007",
   "products": [
     {
@@ -15,31 +15,31 @@
           "name": "셀트리온",
           "code": "068270",
           "displayCode": "068270",
-          "weight": 31.7
+          "weight": 31.5
         },
         {
           "name": "삼성바이오로직스",
           "code": "207940",
           "displayCode": "207940",
-          "weight": 27.1
+          "weight": 27
         },
         {
           "name": "알테오젠",
           "code": "196170",
           "displayCode": "196170",
-          "weight": 16.6
+          "weight": 16.7
         },
         {
           "name": "유한양행",
           "code": "000100",
           "displayCode": "000100",
-          "weight": 5.6
+          "weight": 5.7
         },
         {
           "name": "SK바이오팜",
           "code": "326030",
           "displayCode": "326030",
-          "weight": 4.3
+          "weight": 4.4
         },
         {
           "name": "HLB",
@@ -57,13 +57,13 @@
           "name": "삼천당제약",
           "code": "000250",
           "displayCode": "000250",
-          "weight": 2.9
+          "weight": 2.8
         },
         {
           "name": "삼성에피스홀딩스",
           "code": "0126Z0",
           "displayCode": "0126Z0",
-          "weight": 2.4
+          "weight": 2.5
         },
         {
           "name": "에이비엘바이오",
@@ -79,13 +79,13 @@
       "isin": "KR7463050005",
       "name": "TIME K바이오액티브",
       "historyId": "13",
-      "count": 28,
+      "count": 29,
       "rows": [
         {
           "name": "셀트리온",
           "code": "068270",
           "displayCode": "068270",
-          "weight": 27.9
+          "weight": 27.8
         },
         {
           "name": "삼성바이오로직스",
@@ -97,7 +97,7 @@
           "name": "알테오젠",
           "code": "196170",
           "displayCode": "196170",
-          "weight": 6.2
+          "weight": 6.3
         },
         {
           "name": "한미약품",
@@ -109,13 +109,13 @@
           "name": "한올바이오파마",
           "code": "009420",
           "displayCode": "009420",
-          "weight": 4.7
+          "weight": 4.9
         },
         {
           "name": "올릭스",
           "code": "226950",
           "displayCode": "226950",
-          "weight": 4.5
+          "weight": 4.7
         },
         {
           "name": "SK바이오팜",
@@ -133,16 +133,16 @@
           "name": "디앤디파마텍",
           "code": "347850",
           "displayCode": "347850",
-          "weight": 3.2
+          "weight": 3.1
         },
         {
-          "name": "리가켐바이오",
-          "code": "141080",
-          "displayCode": "141080",
-          "weight": 2.7
+          "name": "지투지바이오",
+          "code": "456160",
+          "displayCode": "456160",
+          "weight": 2.6
         }
       ],
-      "top10Total": 75.7
+      "top10Total": 75.9
     },
     {
       "ticker": "462900",
@@ -155,7 +155,7 @@
           "name": "셀트리온",
           "code": "068270",
           "displayCode": "068270",
-          "weight": 10.8
+          "weight": 10.7
         },
         {
           "name": "한미약품",
@@ -167,19 +167,19 @@
           "name": "한올바이오파마",
           "code": "009420",
           "displayCode": "009420",
-          "weight": 7.1
+          "weight": 7.5
         },
         {
           "name": "올릭스",
           "code": "226950",
           "displayCode": "226950",
-          "weight": 6.9
+          "weight": 7.2
         },
         {
           "name": "에이비엘바이오",
           "code": "298380",
           "displayCode": "298380",
-          "weight": 6.7
+          "weight": 6.6
         },
         {
           "name": "알테오젠",
@@ -203,16 +203,16 @@
           "name": "오스코텍",
           "code": "039200",
           "displayCode": "039200",
-          "weight": 4.4
+          "weight": 4.2
         },
         {
           "name": "디앤디파마텍",
           "code": "347850",
           "displayCode": "347850",
-          "weight": 4.2
+          "weight": 4
         }
       ],
-      "top10Total": 64.8
+      "top10Total": 64.9
     },
     {
       "ticker": "244580",
@@ -222,16 +222,22 @@
       "count": 51,
       "rows": [
         {
-          "name": "프로티나",
-          "code": "468530",
-          "displayCode": "468530",
-          "weight": 4.3
-        },
-        {
           "name": "루닛",
           "code": "328130",
           "displayCode": "328130",
+          "weight": 4.3
+        },
+        {
+          "name": "프로티나",
+          "code": "468530",
+          "displayCode": "468530",
           "weight": 4
+        },
+        {
+          "name": "동국제약",
+          "code": "086450",
+          "displayCode": "086450",
+          "weight": 2.9
         },
         {
           "name": "셀트리온",
@@ -240,21 +246,21 @@
           "weight": 2.7
         },
         {
-          "name": "동국제약",
-          "code": "086450",
-          "displayCode": "086450",
-          "weight": 2.7
-        },
-        {
           "name": "앱클론",
           "code": "174900",
           "displayCode": "174900",
-          "weight": 2.5
+          "weight": 2.7
         },
         {
           "name": "SK바이오팜",
           "code": "326030",
           "displayCode": "326030",
+          "weight": 2.5
+        },
+        {
+          "name": "유한양행",
+          "code": "000100",
+          "displayCode": "000100",
           "weight": 2.4
         },
         {
@@ -270,19 +276,13 @@
           "weight": 2.4
         },
         {
-          "name": "유한양행",
-          "code": "000100",
-          "displayCode": "000100",
-          "weight": 2.4
-        },
-        {
           "name": "셀트리온제약",
           "code": "068760",
           "displayCode": "068760",
-          "weight": 2.3
+          "weight": 2.4
         }
       ],
-      "top10Total": 28.1
+      "top10Total": 28.7
     }
   ]
 }
