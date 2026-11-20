@@ -1,7 +1,7 @@
 {
   "universe": "us",
-  "date": "2026-11-18",
-  "checkedAt": "2026-11-19T01:58:40.973Z",
+  "date": "2026-11-19",
+  "checkedAt": "2026-11-20T01:53:22.913Z",
   "source": "https://www.funetf.co.kr/product/comparison/etf?itemIds=KR7426030003,KR7456600006,KR70174B0001,KR70186L0005,KR70015B0004",
   "products": [
     {
@@ -9,31 +9,31 @@
       "isin": "KR7426030003",
       "name": "TIME 미국나스닥100액티브",
       "historyId": "2",
-      "count": 45,
+      "count": 47,
       "rows": [
         {
           "name": "애플/Apple Inc",
           "code": "AAPL",
           "displayCode": "AAPL",
-          "weight": 7.3
+          "weight": 7.2
         },
         {
           "name": "마이크로소프트/MICROSOFT CORP",
           "code": "MSFT",
           "displayCode": "MSFT",
-          "weight": 7.2
+          "weight": 7.1
         },
         {
           "name": "아마존/Amazon.com Inc",
           "code": "AMZN",
           "displayCode": "AMZN",
-          "weight": 6.8
+          "weight": 7
         },
         {
           "name": "Advanced Micro Devices Inc",
           "code": "AMD",
           "displayCode": "AMD",
-          "weight": 6.7
+          "weight": 7
         },
         {
           "name": "알파벳 A/Alphabet Inc",
@@ -45,7 +45,7 @@
           "name": "엔비디아/NVIDIA Corp",
           "code": "NVDA",
           "displayCode": "NVDA",
-          "weight": 3.8
+          "weight": 3.7
         },
         {
           "name": "메타/페이스북/Meta Platforms Inc-CL A",
@@ -60,38 +60,38 @@
           "weight": 3.1
         },
         {
-          "name": "Bloom Energy Corp",
-          "code": "BE",
-          "displayCode": "BE",
-          "weight": 3.1
-        },
-        {
           "name": "스페이스X/Space Exploration Technologies Corp",
           "code": "SPCX",
           "displayCode": "SPCX",
           "weight": 3
+        },
+        {
+          "name": "Bloom Energy Corp",
+          "code": "BE",
+          "displayCode": "BE",
+          "weight": 3
         }
       ],
-      "top10Total": 49.8
+      "top10Total": 49.9
     },
     {
       "ticker": "456600",
       "isin": "KR7456600006",
       "name": "TIME 글로벌AI인공지능액티브",
       "historyId": "6",
-      "count": 49,
+      "count": 50,
       "rows": [
-        {
-          "name": "아마존/Amazon.com Inc",
-          "code": "AMZN",
-          "displayCode": "AMZN",
-          "weight": 6
-        },
         {
           "name": "Advanced Micro Devices Inc",
           "code": "AMD",
           "displayCode": "AMD",
-          "weight": 6
+          "weight": 6.3
+        },
+        {
+          "name": "아마존/Amazon.com Inc",
+          "code": "AMZN",
+          "displayCode": "AMZN",
+          "weight": 6.2
         },
         {
           "name": "마이크로소프트/MICROSOFT CORP",
@@ -109,24 +109,18 @@
           "name": "Intl Business Machines Corp",
           "code": "IBM",
           "displayCode": "IBM",
-          "weight": 4.3
-        },
-        {
-          "name": "Accenture PLC",
-          "code": "ACN",
-          "displayCode": "ACN",
-          "weight": 3.8
+          "weight": 4.2
         },
         {
           "name": "QUALCOMM Inc",
           "code": "QCOM",
           "displayCode": "QCOM",
-          "weight": 3.8
+          "weight": 3.6
         },
         {
-          "name": "TIME 차이나AI테크액티브",
-          "code": "0043Y0",
-          "displayCode": "0043Y0",
+          "name": "Accenture PLC",
+          "code": "ACN",
+          "displayCode": "ACN",
           "weight": 3.1
         },
         {
@@ -136,13 +130,19 @@
           "weight": 3.1
         },
         {
-          "name": "SAP SE-SPONSORED ADR",
-          "code": "SAP",
-          "displayCode": "SAP",
-          "weight": 2.9
+          "name": "TIME 차이나AI테크액티브",
+          "code": "0043Y0",
+          "displayCode": "0043Y0",
+          "weight": 3
+        },
+        {
+          "name": "인텔/INTEL ORD",
+          "code": "INTC",
+          "displayCode": "INTC",
+          "weight": 2.4
         }
       ],
-      "top10Total": 42.2
+      "top10Total": 41.1
     },
     {
       "ticker": "0174B0",
@@ -155,64 +155,64 @@
           "name": "마이크론/Micron Technology Inc",
           "code": "MU",
           "displayCode": "MU",
-          "weight": 15.4
+          "weight": 14.9
         },
         {
           "name": "삼성전자",
           "code": "005930",
           "displayCode": "005930",
-          "weight": 12.1
+          "weight": 11.9
         },
         {
           "name": "SK하이닉스",
           "code": "000660",
           "displayCode": "000660",
-          "weight": 11.6
+          "weight": 11.8
         },
         {
           "name": "Advantest Corp",
           "code": "6857",
           "displayCode": "6857",
-          "weight": 4.7
+          "weight": 4.8
         },
         {
           "name": "APPLIED MATERIALS INC",
           "code": "AMAT",
           "displayCode": "AMAT",
-          "weight": 4.7
+          "weight": 4.6
         },
         {
           "name": "LAM RESEARCH CORP",
           "code": "LRCX",
           "displayCode": "LRCX",
-          "weight": 4.6
+          "weight": 4.5
         },
         {
           "name": "Tokyo Electron Ltd",
           "code": "8035",
           "displayCode": "8035",
-          "weight": 4.4
+          "weight": 4.3
         },
         {
           "name": "피에스케이홀딩스",
           "code": "031980",
           "displayCode": "031980",
-          "weight": 3.1
-        },
-        {
-          "name": "샌디스크/Sandisk Corp/DE",
-          "code": "SNDK",
-          "displayCode": "SNDK",
-          "weight": 2.8
+          "weight": 3.3
         },
         {
           "name": "피에스케이",
           "code": "319660",
           "displayCode": "319660",
+          "weight": 2.9
+        },
+        {
+          "name": "MURATA MFG CO",
+          "code": "6981",
+          "displayCode": "6981",
           "weight": 2.7
         }
       ],
-      "top10Total": 66.1
+      "top10Total": 65.7
     },
     {
       "ticker": "0186L0",
@@ -222,16 +222,16 @@
       "count": 49,
       "rows": [
         {
-          "name": "Advanced Micro Devices Inc",
-          "code": "AMD",
-          "displayCode": "AMD",
-          "weight": 10.3
-        },
-        {
           "name": "아마존/Amazon.com Inc",
           "code": "AMZN",
           "displayCode": "AMZN",
-          "weight": 9.5
+          "weight": 9.7
+        },
+        {
+          "name": "Advanced Micro Devices Inc",
+          "code": "AMD",
+          "displayCode": "AMD",
+          "weight": 9.6
         },
         {
           "name": "테슬라/Tesla Inc",
@@ -243,13 +243,13 @@
           "name": "마이크론/Micron Technology Inc",
           "code": "MU",
           "displayCode": "MU",
-          "weight": 7.3
+          "weight": 7.1
         },
         {
           "name": "Bloom Energy Corp",
           "code": "BE",
           "displayCode": "BE",
-          "weight": 5.7
+          "weight": 5.5
         },
         {
           "name": "알파벳 A/Alphabet Inc",
@@ -267,7 +267,7 @@
           "name": "Intuitive Surgical Inc",
           "code": "ISRG",
           "displayCode": "ISRG",
-          "weight": 4.2
+          "weight": 4.1
         },
         {
           "name": "인텔/INTEL ORD",
@@ -276,13 +276,13 @@
           "weight": 4.1
         },
         {
-          "name": "Cloudflare Inc.",
-          "code": "NET",
-          "displayCode": "NET",
-          "weight": 3.2
+          "name": "브로드컴/BROADCOM LTD",
+          "code": "AVGO",
+          "displayCode": "AVGO",
+          "weight": 4
         }
       ],
-      "top10Total": 63.5
+      "top10Total": 63.3
     },
     {
       "ticker": "0015B0",
@@ -292,40 +292,40 @@
       "count": 50,
       "rows": [
         {
-          "name": "브로드컴/BROADCOM LTD",
-          "code": "AVGO",
-          "displayCode": "AVGO",
-          "weight": 8.6
-        },
-        {
           "name": "Advanced Micro Devices Inc",
           "code": "AMD",
           "displayCode": "AMD",
-          "weight": 8.5
+          "weight": 8.9
         },
         {
-          "name": "마이크론/Micron Technology Inc",
-          "code": "MU",
-          "displayCode": "MU",
-          "weight": 8.4
+          "name": "브로드컴/BROADCOM LTD",
+          "code": "AVGO",
+          "displayCode": "AVGO",
+          "weight": 8.8
         },
         {
           "name": "아마존/Amazon.com Inc",
           "code": "AMZN",
           "displayCode": "AMZN",
+          "weight": 8.4
+        },
+        {
+          "name": "마이크론/Micron Technology Inc",
+          "code": "MU",
+          "displayCode": "MU",
           "weight": 8.2
         },
         {
           "name": "Bloom Energy Corp",
           "code": "BE",
           "displayCode": "BE",
-          "weight": 7.9
+          "weight": 7.7
         },
         {
           "name": "마이크로소프트/MICROSOFT CORP",
           "code": "MSFT",
           "displayCode": "MSFT",
-          "weight": 5
+          "weight": 4.9
         },
         {
           "name": "알파벳 A/Alphabet Inc",
@@ -337,22 +337,22 @@
           "name": "Cloudflare Inc.",
           "code": "NET",
           "displayCode": "NET",
-          "weight": 4.5
+          "weight": 4.7
         },
         {
           "name": "Arista Networks Inc",
           "code": "ANET",
           "displayCode": "ANET",
-          "weight": 4.3
+          "weight": 4.4
         },
         {
           "name": "팔란티어/Palantir Technologies Inc -A",
           "code": "PLTR",
           "displayCode": "PLTR",
-          "weight": 3.8
+          "weight": 3.7
         }
       ],
-      "top10Total": 64.1
+      "top10Total": 64.6
     }
   ]
 }
