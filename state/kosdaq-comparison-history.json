@@ -1330,5 +1330,153 @@
         "top10Total": 39.3
       }
     ]
+  },
+  {
+    "universe": "kosdaq",
+    "date": "2026-11-20",
+    "checkedAt": "2026-11-23T01:07:20.447Z",
+    "source": "https://www.funetf.co.kr/product/comparison/etf?itemIds=KR70162Y0008,KR70163Y0007",
+    "products": [
+      {
+        "ticker": "0162Y0",
+        "isin": "KR70162Y0008",
+        "name": "TIME 코스닥액티브",
+        "historyId": "24",
+        "count": 58,
+        "rows": [
+          {
+            "name": "원익홀딩스",
+            "code": "030530",
+            "displayCode": "030530",
+            "weight": 7.3
+          },
+          {
+            "name": "심텍",
+            "code": "222800",
+            "displayCode": "222800",
+            "weight": 4.5
+          },
+          {
+            "name": "알테오젠",
+            "code": "196170",
+            "displayCode": "196170",
+            "weight": 4.1
+          },
+          {
+            "name": "에코프로",
+            "code": "086520",
+            "displayCode": "086520",
+            "weight": 3.9
+          },
+          {
+            "name": "티엘비",
+            "code": "356860",
+            "displayCode": "356860",
+            "weight": 3.9
+          },
+          {
+            "name": "인텍플러스",
+            "code": "064290",
+            "displayCode": "064290",
+            "weight": 3.7
+          },
+          {
+            "name": "로보티즈",
+            "code": "108490",
+            "displayCode": "108490",
+            "weight": 3.3
+          },
+          {
+            "name": "레인보우로보틱스",
+            "code": "277810",
+            "displayCode": "277810",
+            "weight": 3.1
+          },
+          {
+            "name": "에코프로비엠",
+            "code": "247540",
+            "displayCode": "247540",
+            "weight": 2.9
+          },
+          {
+            "name": "미코",
+            "code": "059090",
+            "displayCode": "059090",
+            "weight": 2.9
+          }
+        ],
+        "top10Total": 39.6
+      },
+      {
+        "ticker": "0163Y0",
+        "isin": "KR70163Y0007",
+        "name": "KoAct 코스닥액티브",
+        "historyId": "0163Y0",
+        "count": 79,
+        "rows": [
+          {
+            "name": "피에스케이홀딩스",
+            "code": "031980",
+            "displayCode": "031980",
+            "weight": 6.4
+          },
+          {
+            "name": "티엘비",
+            "code": "356860",
+            "displayCode": "356860",
+            "weight": 6.1
+          },
+          {
+            "name": "이오테크닉스",
+            "code": "039030",
+            "displayCode": "039030",
+            "weight": 5.3
+          },
+          {
+            "name": "심텍",
+            "code": "222800",
+            "displayCode": "222800",
+            "weight": 4.2
+          },
+          {
+            "name": "티에프이",
+            "code": "425420",
+            "displayCode": "425420",
+            "weight": 4.2
+          },
+          {
+            "name": "테스",
+            "code": "095610",
+            "displayCode": "095610",
+            "weight": 3.9
+          },
+          {
+            "name": "선익시스템",
+            "code": "171090",
+            "displayCode": "171090",
+            "weight": 2.2
+          },
+          {
+            "name": "파마리서치",
+            "code": "214450",
+            "displayCode": "214450",
+            "weight": 2.2
+          },
+          {
+            "name": "RFHIC",
+            "code": "218410",
+            "displayCode": "218410",
+            "weight": 2.1
+          },
+          {
+            "name": "서부T&D",
+            "code": "006730",
+            "displayCode": "006730",
+            "weight": 2
+          }
+        ],
+        "top10Total": 38.6
+      }
+    ]
   }
 ]
